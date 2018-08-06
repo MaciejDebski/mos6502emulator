@@ -27,10 +27,13 @@
     <ClInclude Include="DebugLog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryManager.h">
+    <ClInclude Include="Memory_NES.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OpcodeManager.h">
+    <ClInclude Include="Opcodes_mos6502.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,7 +47,10 @@
     <ClCompile Include="DebugLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OpcodeManager.cpp">
+    <ClCompile Include="Opcodes_mos6502.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

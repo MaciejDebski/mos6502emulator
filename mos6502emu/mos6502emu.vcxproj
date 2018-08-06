@@ -147,17 +147,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="MemoryManager.h" />
+    <ClInclude Include="CPU.h" />
+    <ClInclude Include="Memory_NES.h" />
     <ClInclude Include="DebugLog.h" />
     <ClInclude Include="mos6502emu.h" />
-    <ClInclude Include="OpcodeManager.h" />
+    <ClInclude Include="Opcodes_mos6502.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CPU.cpp" />
     <ClCompile Include="DebugLog.cpp" />
     <ClCompile Include="mos6502emu.cpp" />
-    <ClCompile Include="OpcodeManager.cpp" />
+    <ClCompile Include="Opcodes_mos6502.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
