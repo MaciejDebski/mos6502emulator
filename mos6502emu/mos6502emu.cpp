@@ -25,7 +25,7 @@ namespace mos6502emu{
 	}
 
 	inline CyclesUsed TickCPU() {
-		
+		CPU::Tick();
 	}
 
 	inline void RealPPUTick(float deltatime) {

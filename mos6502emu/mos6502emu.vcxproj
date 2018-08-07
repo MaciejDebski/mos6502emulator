@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Commons.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="Memory_NES.h" />
     <ClInclude Include="DebugLog.h" />
