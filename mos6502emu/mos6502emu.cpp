@@ -60,11 +60,11 @@ namespace mos6502emu{
 	}
 
 	void SetPC(uint_least16_t newPC) {
-		CPU::ProcessorRegisters1.PC = newPC;
+		CPU::Reg.PC = newPC;
 	}
 
 	struct CPU::ProcessorRegisters* GetStatus() {
-		return &CPU::ProcessorRegisters1;
+		return &CPU::Reg;
 	}
 
 	void PPUCallbackDummy() {};

@@ -4,60 +4,70 @@
 
 namespace mos6502emu {
 	namespace CPU {
-
-		enum AMODE {
-			ACC,
-			ABS_,
-			ABS_X,
-			ABS_Y,
-			ZERO_,
-			ZERO_X,
-			ZERO_Y,
-			IMM,
-			REL,
-			IMP,
-			IND,
-			IND_X,
-			IND_Y
-		};
-
 		static union StatusRegisters {
 			struct {
-				Reg8bit N : 1;
-				Reg8bit V : 1;
-				Reg8bit reserved : 1;
-				Reg8bit B : 1;
-				Reg8bit D : 1;
-				Reg8bit I : 1;
-				Reg8bit Z : 1;
-				Reg8bit C : 1;
+				Word8bit N : 1;
+				Word8bit V : 1;
+				Word8bit reserved : 1;
+				Word8bit B : 1;
+				Word8bit D : 1;
+				Word8bit I : 1;
+				Word8bit Z : 1;
+				Word8bit C : 1;
 			};
-			Reg8bit all_flags = 0x34;
-		} StatusRegisters1;
+			Word8bit all_flags = 0x34;
+		} Status;
 
 		static struct ProcessorRegisters {
-			Reg16bit PC = InitialPC;
-			Reg8bit A = 0;
-			Reg8bit X = 0;
-			Reg8bit Y = 0;
-			Reg8bit SP = 0xff;
-			union StatusRegisters* P = &StatusRegisters1;
-		} ProcessorRegisters1;
+			Word16bit PC = InitialPC;
+			Word8bit A = 0;
+			Word8bit X = 0;
+			Word8bit Y = 0;
+			Word8bit SP = 0xff;
+			union StatusRegisters* P = &Status;
+		} Reg;
 
 		typedef Word8bit MemoryCell;
-		MemoryCell Memory[65535];
+		extern MemoryCell Memory[65535];
 
-		CyclesUsed Tick();
-		inline Word8bit GetData(uint_least16_t PC);
+		inline CyclesUsed Tick();
 
-		inline void Write(Word8bit addr_b1, Word8bit addr_b2, AMODE addressing_mode);
-		inline void Read(Word8bit addr_b1, Word8bit addr_b2, AMODE addressing_mode);
+		inline bool PageBoundaryCrossed();
 
+		inline Word8bit GetAddr_ABS();
+		inline Word8bit GetAddr_ABS_X();
+		inline Word8bit GetAddr_ABS_Y();
+		inline Word8bit GetAddr_ZERO();
+		inline Word8bit GetAddr_ZERO_X();
+		inline Word8bit GetAddr_ZERO_Y();
+		inline Word8bit GetAddr_REL();
+		inline Word8bit GetAddr_IND();
+		inline Word8bit GetAddr_IND_X();
+		inline Word8bit GetAddr_IND_Y();
 
+		inline void Write_ACC(Word8bit data);
+		inline void Write_ABS(Word8bit data, Word8bit addr_LSbyte, Word8bit addr_MSbyte);
+		inline void Write_ABS_X(Word8bit data, Word8bit addr_LSbyte, Word8bit addr_MSbyte);
+		inline void Write_ABS_Y(Word8bit data, Word8bit addr_LSbyte, Word8bit addr_MSbyte);
+		inline void Write_ZERO(Word8bit data, Word8bit addr_LSbyte);
+		inline void Write_ZERO_X(Word8bit data, Word8bit addr_LSbyte);
+		inline void Write_ZERO_Y(Word8bit data, Word8bit addr_LSbyte);
+		inline void Write_REL(Word8bit data, Word8bit addr_LSbyte);
+		inline void Write_IND(Word8bit data, Word8bit addr_LSbyte, Word8bit addr_MSbyte);
+		inline void Write_IND_X(Word8bit data, Word8bit addr_LSbyte);
+		inline void Write_IND_Y(Word8bit data, Word8bit addr_LSbyte);
 
-
-
-
+		inline Word8bit Read_PC();
+		inline Word8bit Read_ABS();
+		inline Word8bit Read_ABS_X();
+		inline Word8bit Read_ABS_Y();
+		inline Word8bit Read_ZERO();
+		inline Word8bit Read_ZERO_X();
+		inline Word8bit Read_ZERO_Y();
+		inline Word8bit Read_REL();
+		inline Word8bit Read_IND();
+		inline Word8bit Read_IND_X();
+		inline Word8bit Read_IND_Y();
 
 
 
