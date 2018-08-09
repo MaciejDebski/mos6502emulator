@@ -4,10 +4,9 @@
 
 namespace mos6502emu {
 	typedef uint_fast32_t CyclesUsed;
-	typedef uint_least16_t Reg16bit;
-	typedef uint_least8_t Reg8bit;
 	typedef uint_fast16_t Word16bit;
 	typedef uint_fast8_t Word8bit;
+	typedef int_fast8_t U2Word8bit;
 	
 	// Parameters
 	extern float CPUCycleLength;
