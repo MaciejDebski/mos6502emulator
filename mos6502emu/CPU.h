@@ -23,7 +23,7 @@ namespace mos6502emu {
 			Word8bit A = 0;
 			Word8bit X = 0;
 			Word8bit Y = 0;
-			Word8bit SP = 0xff;
+			Word16bit SP = 0x01ff;
 			union StatusRegisters* P = &Status;
 		} Reg;
 
@@ -69,7 +69,10 @@ namespace mos6502emu {
 		inline Word8bit Read_IND_X();
 		inline Word8bit Read_IND_Y();
 
-
+		inline void Stack_Push(Word8bit data);
+		inline Word8bit Stack_Pull();
+		inline bool Stack_IsEmpty();
+		inline bool Stack_IsFull();
 
 	}
 }

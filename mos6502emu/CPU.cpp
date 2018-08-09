@@ -172,6 +172,33 @@ namespace mos6502emu {
 			return Memory[__IND_Y__(Memory[++Reg.PC])];
 		}
 
+
+		inline void Stack_Push(Word8bit data) {
+			if (Stack_IsFull()) {
+				Reg.SP = 0x01FF;
+				// throw INT;
+			}
+
+			Memory[Reg.SP--] = data;
+		}
+
+		inline Word8bit Stack_Pull() {
+			if (Stack_IsEmpty()) {
+				// throw INT;
+			}
+
+			return Memory[++Reg.SP];
+		}
+
+		inline bool Stack_IsEmpty() {
+			return Reg.SP == 0x01FF;
+		}
+
+		inline bool Stack_IsFull() {
+			return Reg.SP == 0x00FF;
+		}
+
+
 #undef __ABS__
 #undef __ABS_X__
 #undef __ABS_Y__
