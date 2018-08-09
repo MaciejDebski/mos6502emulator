@@ -2,24 +2,23 @@
 #include "CPU.h"
 
 namespace mos6502emu{
-	float CPUCycleLength = 5.5865921787709497206703910614525e-7f;
-	float PPUCycleLength = 2.9411764705882352941176470588235e-5f;
-	uint_least16_t InitialPC = 0x00;
-
 	void PPUCallbackDummy();
 
 	static float CPUAccDeltaTime;
 	static float PPUAccDeltaTime;
 	static void(*PPUCallback)() = PPUCallbackDummy;
 
+	void Update(float deltatime) {
+		RealCPUTick(deltatime);
+		RealPPUTick(deltatime);
+	}
+
 	void RealCPUTick(float deltatime) {
 		CPUAccDeltaTime += deltatime;
 		while(CPUAccDeltaTime >= CPUCycleLength) {
 
-			CyclesUsed cycles = TickCPU();
-			CPUAccDeltaTime -= (CPUCycleLength * cycles);
-
-			RealPPUTick(CPUCycleLength * cycles);
+			CyclesUsed cycles = TickCPU() * CPUCycleLength;
+			CPUAccDeltaTime -= (cycles);
 
 		}
 	}
