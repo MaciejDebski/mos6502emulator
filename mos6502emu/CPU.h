@@ -6,14 +6,14 @@ namespace mos6502emu {
 	namespace CPU {
 		static union StatusRegisters {
 			struct {
-				Word8bit N : 1;
-				Word8bit V : 1;
-				Word8bit reserved : 1;
-				Word8bit B : 1;
-				Word8bit D : 1;
-				Word8bit I : 1;
-				Word8bit Z : 1;
 				Word8bit C : 1;
+				Word8bit Z : 1;
+				Word8bit I : 1;
+				Word8bit D : 1; // ignored on NES's mos6502.
+				Word8bit B : 1;
+				Word8bit reserved : 1;
+				Word8bit V : 1;
+				Word8bit N : 1;
 			};
 			Word8bit all_flags = 0x34;
 		} Status;
