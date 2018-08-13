@@ -39,43 +39,43 @@ namespace mos6502emu {
 
 
 		// GET ADDRESS
-		inline Word8bit GetAddr_ABS() {
+		inline Word16bit GetAddr_ABS() {
 			return __ABS__(Memory[++Reg.PC], Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_ABS_X() {
+		inline Word16bit GetAddr_ABS_X() {
 			return __ABS_X__(Memory[++Reg.PC], Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_ABS_Y() {
+		inline Word16bit GetAddr_ABS_Y() {
 			return __ABS_Y__(Memory[++Reg.PC], Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_ZERO() {
+		inline Word16bit GetAddr_ZERO() {
 			return __ZERO__(Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_ZERO_X() {
+		inline Word16bit GetAddr_ZERO_X() {
 			return __ZERO_X__(Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_ZERO_Y() {
+		inline Word16bit GetAddr_ZERO_Y() {
 			return __ZERO_Y__(Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_REL() {
+		inline Word16bit GetAddr_REL() {
 			return __REL__(Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_IND() {
+		inline Word16bit GetAddr_IND() {
 			return __IND__(Memory[++Reg.PC], Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_IND_X() {
+		inline Word16bit GetAddr_IND_X() {
 			return __IND_X__(Memory[++Reg.PC]);
 		}
 
-		inline Word8bit GetAddr_IND_Y() {
+		inline Word16bit GetAddr_IND_Y() {
 			return __IND_Y__(Memory[++Reg.PC]);
 		}
 

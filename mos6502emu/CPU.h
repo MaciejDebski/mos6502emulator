@@ -34,16 +34,16 @@ namespace mos6502emu {
 
 		inline bool PageBoundaryCrossed();
 
-		inline Word8bit GetAddr_ABS();
-		inline Word8bit GetAddr_ABS_X();
-		inline Word8bit GetAddr_ABS_Y();
-		inline Word8bit GetAddr_ZERO();
-		inline Word8bit GetAddr_ZERO_X();
-		inline Word8bit GetAddr_ZERO_Y();
-		inline Word8bit GetAddr_REL();
-		inline Word8bit GetAddr_IND();
-		inline Word8bit GetAddr_IND_X();
-		inline Word8bit GetAddr_IND_Y();
+		inline Word16bit GetAddr_ABS();
+		inline Word16bit GetAddr_ABS_X();
+		inline Word16bit GetAddr_ABS_Y();
+		inline Word16bit GetAddr_ZERO();
+		inline Word16bit GetAddr_ZERO_X();
+		inline Word16bit GetAddr_ZERO_Y();
+		inline Word16bit GetAddr_REL();
+		inline Word16bit GetAddr_IND();
+		inline Word16bit GetAddr_IND_X();
+		inline Word16bit GetAddr_IND_Y();
 
 		inline void Write_ACC(Word8bit data);
 		inline void Write_ABS(Word8bit data, Word8bit addr_LSbyte, Word8bit addr_MSbyte);

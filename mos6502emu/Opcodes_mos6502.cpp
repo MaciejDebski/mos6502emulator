@@ -9,7 +9,7 @@ namespace mos6502emu {
 		CPU::Status.Z = (result == 0);
 	}
 
-	static inline void ADC(Word16bit data) {
+	static inline void ADC(Word8bit data) {
 		Word8bit A = CPU::Reg.A;
 		Word16bit sum = (CPU::Reg.A = (A + (data & 0xFF)));
 		
@@ -19,14 +19,14 @@ namespace mos6502emu {
 		SetFlagsNZ(sum);
 	}
 
-	static inline void ROL(Word8bit address) {
+	static inline void ROL(Word16bit address) {
 		Word8bit c = CPU::Status.C;
 		CPU::Status.C = CPU::Memory[address] & 0x80 >> 7;
 		CPU::Memory[address] = CPU::Memory[address] << 1;
 		PasteBit(CPU::Memory[address], 0, c);
 	}
 
-	static inline void ROR(Word8bit address) {
+	static inline void ROR(Word16bit address) {
 		Word8bit c = CPU::Status.C;
 		CPU::Status.C = CPU::Memory[address] & 0x1;
 		CPU::Memory[address] = CPU::Memory[address] >> 1;
