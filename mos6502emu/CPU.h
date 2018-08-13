@@ -34,6 +34,7 @@ namespace mos6502emu {
 
 		inline bool PageBoundaryCrossed();
 
+		inline Word16bit GetAddr_(Word8bit LSbyte, Word8bit MSbyte);
 		inline Word16bit GetAddr_ABS();
 		inline Word16bit GetAddr_ABS_X();
 		inline Word16bit GetAddr_ABS_Y();
@@ -57,22 +58,27 @@ namespace mos6502emu {
 		inline void Write_IND_X(Word8bit data, Word8bit addr_LSbyte);
 		inline void Write_IND_Y(Word8bit data, Word8bit addr_LSbyte);
 
-		inline Word8bit Read_PC();
-		inline Word8bit Read_ABS();
-		inline Word8bit Read_ABS_X();
-		inline Word8bit Read_ABS_Y();
-		inline Word8bit Read_ZERO();
-		inline Word8bit Read_ZERO_X();
-		inline Word8bit Read_ZERO_Y();
-		inline Word8bit Read_REL();
-		inline Word8bit Read_IND();
-		inline Word8bit Read_IND_X();
-		inline Word8bit Read_IND_Y();
+		inline Word8bit Deref_PC();
+		inline Word8bit Deref_ABS();
+		inline Word8bit Deref_ABS_X();
+		inline Word8bit Deref_ABS_Y();
+		inline Word8bit Deref_ZERO();
+		inline Word8bit Deref_ZERO_X();
+		inline Word8bit Deref_ZERO_Y();
+		inline Word8bit Deref_REL();
+		inline Word8bit Deref_IND();
+		inline Word8bit Deref_IND_X();
+		inline Word8bit Deref_IND_Y();
 
 		inline void Stack_Push(Word8bit data);
 		inline Word8bit Stack_Pull();
 		inline bool Stack_IsEmpty();
 		inline bool Stack_IsFull();
+
+		inline void BRK();
+		inline void IRQ();
+		inline void NMI();
+		inline void RESET();
 
 	}
 }

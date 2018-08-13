@@ -37,8 +37,11 @@ namespace mos6502emu {
 		}
 
 
-
 		// GET ADDRESS
+		inline Word16bit GetAddr_(Word8bit LSbyte, Word8bit MSbyte) {
+			return __ABS__(LSbyte, MSbyte);
+		}
+
 		inline Word16bit GetAddr_ABS() {
 			return __ABS__(Memory[++Reg.PC], Memory[++Reg.PC]);
 		}
@@ -128,47 +131,47 @@ namespace mos6502emu {
 
 
 		// READ
-		inline Word8bit Read_PC() {
+		inline Word8bit Deref_PC() {
 			return Memory[++Reg.PC];
 		}
 
-		inline Word8bit Read_ABS() {
+		inline Word8bit Deref_ABS() {
 			return Memory[__ABS__(Memory[++Reg.PC], Memory[++Reg.PC])];
 		}
 
-		inline Word8bit Read_ABS_X() {
+		inline Word8bit Deref_ABS_X() {
 			return Memory[__ABS_X__(Memory[++Reg.PC], Memory[++Reg.PC])];
 		}
 
-		inline Word8bit Read_ABS_Y() {
+		inline Word8bit Deref_ABS_Y() {
 			return Memory[__ABS_Y__(Memory[++Reg.PC], Memory[++Reg.PC])];
 		}
 
-		inline Word8bit Read_ZERO() {
+		inline Word8bit Deref_ZERO() {
 			return Memory[__ZERO__(Memory[++Reg.PC])];
 		}
 
-		inline Word8bit Read_ZERO_X() {
+		inline Word8bit Deref_ZERO_X() {
 			return Memory[__ZERO_X__(Memory[++Reg.PC])];
 		}
 
-		inline Word8bit Read_ZERO_Y() {
+		inline Word8bit Deref_ZERO_Y() {
 			return Memory[__ZERO_Y__(Memory[++Reg.PC])];
 		}
 		
-		inline Word8bit Read_REL() {
+		inline Word8bit Deref_REL() {
 			return Memory[__REL__(Memory[++Reg.PC])];
 		}
 
-		inline Word8bit Read_IND() {
+		inline Word8bit Deref_IND() {
 			return Memory[__IND__(Memory[++Reg.PC], Memory[++Reg.PC])];
 		}
 
-		inline Word8bit Read_IND_X() {
+		inline Word8bit Deref_IND_X() {
 			return Memory[__IND_X__(Memory[++Reg.PC])];
 		}
 
-		inline Word8bit Read_IND_Y() {
+		inline Word8bit Deref_IND_Y() {
 			return Memory[__IND_Y__(Memory[++Reg.PC])];
 		}
 
@@ -196,6 +199,34 @@ namespace mos6502emu {
 
 		inline bool Stack_IsFull() {
 			return Reg.SP == 0x00FF;
+		}
+
+		static inline void Interrupt(Word8bit VectorLow, Word8bit VectorHigh, Word8bit flag_B) {
+			Stack_Push((Reg.PC & 0xFF00) >> 8); // Push PC High byte on stack
+			Stack_Push(Reg.PC & 0xFF);	// Push PC Low byte on stack
+			StatusRegisters p = Status;
+			p.B = flag_B;
+			p.reserved = 1;
+			Stack_Push(p.all_flags);
+			Reg.PC = __ABS__(Memory[VectorLow], Memory[VectorHigh]);
+			Status.I = 1;
+		}
+
+		inline void BRK() {
+			Interrupt(0xFFFE, 0xFFFF, 1);
+		}
+
+		inline void IRQ() {
+			Interrupt(0xFFFE, 0xFFFF, 0);
+		}
+
+		inline void NMI() {
+			Interrupt(0xFFFA, 0xFFFB, 0);
+		}
+
+		inline void RESET() {
+			Reg.PC = __ABS__(Memory[0xFFFC], Memory[0xFFFD]);
+			Status.I = 1;
 		}
 
 

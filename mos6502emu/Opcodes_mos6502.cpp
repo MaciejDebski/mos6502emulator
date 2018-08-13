@@ -48,35 +48,35 @@ namespace mos6502emu {
 
 			// ADC
 		case ADC_IMM: {
-			ADC(CPU::Read_PC());
+			ADC(CPU::Deref_PC());
 			return 2;
 		}break;
 		case ADC_ZERO: {
-			ADC(CPU::Read_ZERO());
+			ADC(CPU::Deref_ZERO());
 			return 3;
 		}break;
 		case ADC_ZERO_X: {
-			ADC(CPU::Read_ZERO_X());
+			ADC(CPU::Deref_ZERO_X());
 			return 4;
 		}break;
 		case ADC_ABS: {
-			ADC(CPU::Read_ABS());
+			ADC(CPU::Deref_ABS());
 			return 4;
 		}break;
 		case ADC_ABS_X: {
-			ADC(CPU::Read_ABS_X());
+			ADC(CPU::Deref_ABS_X());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case ADC_ABS_Y: {
-			ADC(CPU::Read_ABS_Y());
+			ADC(CPU::Deref_ABS_Y());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case ADC_IND_X: {
-			ADC(CPU::Read_IND_X());
+			ADC(CPU::Deref_IND_X());
 			return 6;
 		}break;
 		case ADC_IND_Y: {
-			ADC(CPU::Read_IND_Y());
+			ADC(CPU::Deref_IND_Y());
 			return 5 + CPU::PageBoundaryCrossed();
 		}break;
 
@@ -87,31 +87,31 @@ namespace mos6502emu {
 			return 2;
 		}break;
 		case AND_ZERO: {
-			SetFlagsNZ(CPU::Reg.A &= CPU::Read_ZERO());
+			SetFlagsNZ(CPU::Reg.A &= CPU::Deref_ZERO());
 			return 3;
 		}break;
 		case AND_ZERO_X: {
-			SetFlagsNZ(CPU::Reg.A &= CPU::Read_ZERO_X());
+			SetFlagsNZ(CPU::Reg.A &= CPU::Deref_ZERO_X());
 			return 4;
 		}break;
 		case AND_ABS: {
-			SetFlagsNZ(CPU::Reg.A &= CPU::Read_ABS());
+			SetFlagsNZ(CPU::Reg.A &= CPU::Deref_ABS());
 			return 4;
 		}break;
 		case AND_ABS_X: {
-			SetFlagsNZ(CPU::Reg.A &= CPU::Read_ABS_X());
+			SetFlagsNZ(CPU::Reg.A &= CPU::Deref_ABS_X());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case AND_ABS_Y: {
-			SetFlagsNZ(CPU::Reg.A &= CPU::Read_ABS_Y());
+			SetFlagsNZ(CPU::Reg.A &= CPU::Deref_ABS_Y());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case AND_IND_X: {
-			SetFlagsNZ(CPU::Reg.A &= CPU::Read_IND_X());
+			SetFlagsNZ(CPU::Reg.A &= CPU::Deref_IND_X());
 			return 6;
 		}break;
 		case AND_IND_Y: {
-			SetFlagsNZ(CPU::Reg.A &= CPU::Read_IND_Y());
+			SetFlagsNZ(CPU::Reg.A &= CPU::Deref_IND_Y());
 			return 5 + CPU::PageBoundaryCrossed();
 		}break;
 
@@ -150,13 +150,13 @@ namespace mos6502emu {
 
 			// BIT
 		case BIT_ZERO: {
-			Word8bit result = CPU::Reg.A & CPU::Read_ZERO();
+			Word8bit result = CPU::Reg.A & CPU::Deref_ZERO();
 			SetFlagsNZ(result);
 			CPU::Status.V = (result & 0x40) >> 6;
 			return 3;
 		}break;
 		case BIT_ABS: {
-			Word8bit result = CPU::Reg.A & CPU::Read_ABS();
+			Word8bit result = CPU::Reg.A & CPU::Deref_ABS();
 			SetFlagsNZ(result);
 			CPU::Status.V = (result & 0x40) >> 6;
 			return 4;
@@ -249,47 +249,79 @@ namespace mos6502emu {
 
 			// BREAK
 		case BRK: {
-			// TODO: BRK
+			CPU::BRK();
 			return 7;
 		}break;
 
 
 			// CMP
 		case CMP_IMM: {
-			//Word8bit result = CPU::ProcessorRegisters1.A - CPU::Memory[++CPU::ProcessorRegisters1.PC];
+			Word8bit M = CPU::Deref_PC();
+			SetFlagsNZ(CPU::Reg.A - M);
+			CPU::Status.C = CPU::Reg.A >= M;
 			return 2;
 		}break;
 		case CMP_ZERO: {
+			Word8bit M = CPU::Deref_ZERO();
+			SetFlagsNZ(CPU::Reg.A - M);
+			CPU::Status.C = CPU::Reg.A >= M;
 			return 3;
 		}break;
 		case CMP_ZERO_X: {
+			Word8bit M = CPU::Deref_ZERO_X();
+			SetFlagsNZ(CPU::Reg.A - M);
+			CPU::Status.C = CPU::Reg.A >= M;
 			return 4;
 		}break;
 		case CMP_ABS: {
+			Word8bit M = CPU::Deref_ABS();
+			SetFlagsNZ(CPU::Reg.A - M);
+			CPU::Status.C = CPU::Reg.A >= M;
 			return 4;
 		}break;
 		case CMP_ABS_X: {
-			// 4+
+			Word8bit M = CPU::Deref_ABS_X();
+			SetFlagsNZ(CPU::Reg.A - M);
+			CPU::Status.C = CPU::Reg.A >= M;
+			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case CMP_ABS_Y: {
-			// 4+
+			Word8bit M = CPU::Deref_ABS_Y();
+			SetFlagsNZ(CPU::Reg.A - M);
+			CPU::Status.C = CPU::Reg.A >= M;
+			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case CMP_IND_X: {
+			Word8bit M = CPU::Deref_IND_X();
+			SetFlagsNZ(CPU::Reg.A - M);
+			CPU::Status.C = CPU::Reg.A >= M;
 			return 6;
 		}break;
 		case CMP_IND_Y: {
-			// 5+
+			Word8bit M = CPU::Deref_IND_Y();
+			SetFlagsNZ(CPU::Reg.A - M);
+			CPU::Status.C = CPU::Reg.A >= M;
+			return 5 + CPU::PageBoundaryCrossed();
 		}break;
 
 
 			// CPX
 		case CPX_IMM: {
+			Word8bit M = CPU::Deref_PC();
+			SetFlagsNZ(CPU::Reg.X - M);
+			CPU::Status.C = CPU::Reg.X >= M;
 			return 2;
 		}break;
 		case CPX_ZERO: {
+			Word8bit M = CPU::Deref_ZERO();
+			SetFlagsNZ(CPU::Reg.X - M);
+			CPU::Status.C = CPU::Reg.X >= M;
 			return 3;
 		}break;
 		case CPX_ABS: {
+			Word8bit M = CPU::Deref_ABS();
+			SetFlagsNZ(CPU::Reg.X - M);
+			CPU::Status.C = CPU::Reg.X >= M;
 			return 4;
 		}break;
 
@@ -297,12 +329,21 @@ namespace mos6502emu {
 
 			// CPY
 		case CPY_IMM: {
+			Word8bit M = CPU::Deref_PC();
+			SetFlagsNZ(CPU::Reg.Y - M);
+			CPU::Status.C = CPU::Reg.Y >= M;
 			return 2;
 		}break;
 		case CPY_ZERO: {
+			Word8bit M = CPU::Deref_ZERO();
+			SetFlagsNZ(CPU::Reg.Y - M);
+			CPU::Status.C = CPU::Reg.Y >= M;
 			return 3;
 		}break;
 		case CPY_ABS: {
+			Word8bit M = CPU::Deref_ABS();
+			SetFlagsNZ(CPU::Reg.Y - M);
+			CPU::Status.C = CPU::Reg.Y >= M;
 			return 4;
 		}break;
 
@@ -328,35 +369,35 @@ namespace mos6502emu {
 
 			// EOR
 		case EOR_IMM: {
-			SetFlagsNZ( CPU::Reg.A ^= CPU::Read_PC() );
+			SetFlagsNZ( CPU::Reg.A ^= CPU::Deref_PC() );
 			return 2;
 		}break;
 		case EOR_ZERO: {
-			SetFlagsNZ(CPU::Reg.A ^= CPU::Read_ZERO());
+			SetFlagsNZ(CPU::Reg.A ^= CPU::Deref_ZERO());
 			return 3;
 		}break;
 		case EOR_ZERO_X: {
-			SetFlagsNZ(CPU::Reg.A ^= CPU::Read_ZERO_X());
+			SetFlagsNZ(CPU::Reg.A ^= CPU::Deref_ZERO_X());
 			return 4;
 		}break;
 		case EOR_ABS: {
-			SetFlagsNZ(CPU::Reg.A ^= CPU::Read_ABS());
+			SetFlagsNZ(CPU::Reg.A ^= CPU::Deref_ABS());
 			return 4;
 		}break;
 		case EOR_ABS_X: {
-			SetFlagsNZ(CPU::Reg.A ^= CPU::Read_ABS_X());
+			SetFlagsNZ(CPU::Reg.A ^= CPU::Deref_ABS_X());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case EOR_ABS_Y: {
-			SetFlagsNZ(CPU::Reg.A ^= CPU::Read_ABS_Y());
+			SetFlagsNZ(CPU::Reg.A ^= CPU::Deref_ABS_Y());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case EOR_IND_X: {
-			SetFlagsNZ(CPU::Reg.A ^= CPU::Read_IND_X());
+			SetFlagsNZ(CPU::Reg.A ^= CPU::Deref_IND_X());
 			return 6;
 		}break;
 		case EOR_IND_Y: {
-			SetFlagsNZ(CPU::Reg.A ^= CPU::Read_IND_Y());
+			SetFlagsNZ(CPU::Reg.A ^= CPU::Deref_IND_Y());
 			return 5 + CPU::PageBoundaryCrossed();
 		}break;
 
@@ -424,88 +465,90 @@ namespace mos6502emu {
 
 			// JSR
 		case JSR_ABS: {
-			// TODO: JSR
+			CPU::Stack_Push(((CPU::Reg.PC + 2) & 0xFF00) >> 8); // Push PC High byte on stack
+			CPU::Stack_Push((CPU::Reg.PC + 2) & 0xFF);	// Push PC Low byte on stack
+			CPU::Reg.PC = CPU::GetAddr_ABS();
 			return 6;
 		}break;
 
 
 			// LDA
 		case LDA_IMM: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Read_PC());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_PC());
 			return 2;
 		}break;
 		case LDA_ZERO: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Read_ZERO());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_ZERO());
 			return 3;
 		}break;
 		case LDA_ZERO_X: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Read_ZERO_X());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_ZERO_X());
 			return 4;
 		}break;
 		case LDA_ABS: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Read_ABS());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_ABS());
 			return 4;
 		}break;
 		case LDA_ABS_X: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Read_ABS_X());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_ABS_X());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case LDA_ABS_Y: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Read_ABS_Y());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_ABS_Y());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case LDA_IND_X: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Read_IND_X());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_IND_X());
 			return 6;
 		}break;
 		case LDA_IND_Y: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Read_IND_Y());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_IND_Y());
 			return 5 + CPU::PageBoundaryCrossed();
 		}break;
 
 
 			// LDX
 		case LDX_IMM: {
-			SetFlagsNZ(CPU::Reg.X = CPU::Read_PC());
+			SetFlagsNZ(CPU::Reg.X = CPU::Deref_PC());
 			return 2;
 		}break;
 		case LDX_ZERO: {
-			SetFlagsNZ(CPU::Reg.X = CPU::Read_ZERO());
+			SetFlagsNZ(CPU::Reg.X = CPU::Deref_ZERO());
 			return 3;
 		}break;
 		case LDX_ZERO_Y: {
-			SetFlagsNZ(CPU::Reg.X = CPU::Read_ZERO_Y());
+			SetFlagsNZ(CPU::Reg.X = CPU::Deref_ZERO_Y());
 			return 4;
 		}break;
 		case LDX_ABS: {
-			SetFlagsNZ(CPU::Reg.X = CPU::Read_ABS());
+			SetFlagsNZ(CPU::Reg.X = CPU::Deref_ABS());
 			return 4;
 		}break;
 		case LDX_ABS_Y: {
-			SetFlagsNZ(CPU::Reg.X = CPU::Read_ABS_Y());
+			SetFlagsNZ(CPU::Reg.X = CPU::Deref_ABS_Y());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 
 
 			// LDY
 		case LDY_IMM: {
-			SetFlagsNZ(CPU::Reg.Y = CPU::Read_PC());
+			SetFlagsNZ(CPU::Reg.Y = CPU::Deref_PC());
 			return 2;
 		}break;
 		case LDY_ZERO: {
-			SetFlagsNZ(CPU::Reg.Y = CPU::Read_ZERO());
+			SetFlagsNZ(CPU::Reg.Y = CPU::Deref_ZERO());
 			return 3;
 		}break;
 		case LDY_ZERO_X: {
-			SetFlagsNZ(CPU::Reg.Y = CPU::Read_ZERO_X());
+			SetFlagsNZ(CPU::Reg.Y = CPU::Deref_ZERO_X());
 			return 4;
 		}break;
 		case LDY_ABS: {
-			SetFlagsNZ(CPU::Reg.Y = CPU::Read_ABS());
+			SetFlagsNZ(CPU::Reg.Y = CPU::Deref_ABS());
 			return 4;
 		}break;
 		case LDY_ABS_X: {
-			SetFlagsNZ(CPU::Reg.Y = CPU::Read_ABS_X());
+			SetFlagsNZ(CPU::Reg.Y = CPU::Deref_ABS_X());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 
@@ -551,35 +594,35 @@ namespace mos6502emu {
 
 			// ORA
 		case ORA_IMM: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Read_PC());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_PC());
 			return 2;
 		}break;
 		case ORA_ZERO: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Read_ZERO());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_ZERO());
 			return 3;
 		}break;
 		case ORA_ZERO_X: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Read_ZERO_X());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_ZERO_X());
 			return 4;
 		}break;
 		case ORA_ABS: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Read_ABS());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_ABS());
 			return 4;
 		}break;
 		case ORA_ABS_X: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Read_ABS_X());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_ABS_X());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case ORA_ABS_Y: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Read_ABS_Y());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_ABS_Y());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case ORA_IND_X: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Read_IND_X());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_IND_X());
 			return 6;
 		}break;
 		case ORA_IND_Y: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Read_IND_Y());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_IND_Y());
 			return 5 + CPU::PageBoundaryCrossed();
 		}break;
 
@@ -673,47 +716,50 @@ namespace mos6502emu {
 
 			// RTI
 		case RTI_IMP: {
+			CPU::Status.all_flags = CPU::Stack_Pull();
+			CPU::Reg.PC = CPU::GetAddr_(CPU::Stack_Pull(), CPU::Stack_Pull());
 			return 6;
 		}break;
 
 
 			// RTS
 		case RTS: {
+			CPU::Reg.PC = CPU::GetAddr_(CPU::Stack_Pull(), CPU::Stack_Pull());
 			return 6;
 		}break;
 
 
 			// SBC
 		case SBC_IMM: {
-			SBC(CPU::Read_PC());
+			SBC(CPU::Deref_PC());
 			return 2;
 		}break;
 		case SBC_ZERO: {
-			SBC(CPU::Read_ZERO());
+			SBC(CPU::Deref_ZERO());
 			return 3;
 		}break;
 		case SBC_ZERO_X: {
-			SBC(CPU::Read_ZERO_X());
+			SBC(CPU::Deref_ZERO_X());
 			return 4;
 		}break;
 		case SBC_ABS: {
-			SBC(CPU::Read_ABS());
+			SBC(CPU::Deref_ABS());
 			return 4;
 		}break;
 		case SBC_ABS_X: {
-			SBC(CPU::Read_ABS_X());
+			SBC(CPU::Deref_ABS_X());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case SBC_ABS_Y: {
-			SBC(CPU::Read_ABS_Y());
+			SBC(CPU::Deref_ABS_Y());
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case SBC_IND_X: {
-			SBC(CPU::Read_IND_X());
+			SBC(CPU::Deref_IND_X());
 			return 6;
 		}break;
 		case SBC_IND_Y: {
-			SBC(CPU::Read_IND_Y());
+			SBC(CPU::Deref_IND_Y());
 			return 5 + CPU::PageBoundaryCrossed();
 		}break;
 
@@ -759,19 +805,19 @@ namespace mos6502emu {
 			return 2;
 		}break;
 		case PHA: {
-			// TODO: PHA
+			CPU::Stack_Push(CPU::Reg.A);
 			return 3;
 		}break;
 		case PLA: {
-			// TODO: PLA
+			SetFlagsNZ(CPU::Reg.A = CPU::Stack_Pull());
 			return 4;
 		}break;
 		case PHP: {
-			// TODO: PHP
+			CPU::Stack_Push(CPU::Status.all_flags);
 			return 3;
 		}break;
 		case PLP: {
-			// TODO: PLP
+			CPU::Status.all_flags = CPU::Stack_Pull();
 			return 4;
 		}break;
 
