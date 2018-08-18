@@ -20,8 +20,11 @@ namespace mos6502emu {
 	typedef int_fast8_t U2Word8bit;
 
 	// Parameters
-	static float CPUCycleLength = 5.587301776501224e-7f;
-	static float PPUCycleLength = 1.862433925500408e-7f;
+	static const float CPUClockSpeedHZ = 21477272;
+	static const float CPUCycleLength_Default = 1 / (CPUClockSpeedHZ / 12);
+	static const float PPUCycleLength_Default = 1 / (CPUClockSpeedHZ / 4);
+	static float CPUCycleLength = CPUCycleLength_Default;
+	static float PPUCycleLength = PPUCycleLength_Default;
 	static uint_least16_t InitialPC = 0x00;
 
 	// ROM

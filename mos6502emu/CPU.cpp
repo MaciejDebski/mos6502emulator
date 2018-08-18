@@ -210,7 +210,7 @@ namespace mos6502emu {
 			--Reg.SP;
 		}
 
-		static inline void Interrupt(Fast8bit VectorLow, Fast8bit VectorHigh, Fast8bit flag_B) {
+		static inline void Interrupt(Fast16bit VectorLow, Fast16bit VectorHigh, Fast8bit flag_B) {
 			Stack_Push((Reg.PC & 0xFF00) >> 8); // Push PC High byte on stack
 			Stack_Push(Reg.PC & 0xFF);	// Push PC Low byte on stack
 			StatusRegisters p = Status;

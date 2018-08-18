@@ -17,7 +17,7 @@ namespace mos6502emu{
 		CPUAccDeltaTime += deltatime;
 		while(CPUAccDeltaTime >= CPUCycleLength) {
 
-			CyclesUsed cycles = TickCPU() * CPUCycleLength;
+			float cycles = TickCPU() * CPUCycleLength;
 			CPUAccDeltaTime -= (cycles);
 
 		}
