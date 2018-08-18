@@ -4,10 +4,10 @@
 
 namespace mos6502emu {
 
-#define PasteBit(byte, shift, bit) ((byte & ~(1 << shift)) | (bit << shift) )
+#define PasteBit(byte, shift, bit) ((byte & (~(1 << shift) & 0xFF)) | (bit << shift) )
 
-	static inline Word8bit negativeU2toUNS(U2Word8bit U2) {
-		return (Word8bit)~(U2 - 0x1);
+	static inline Fast8bit negativeU2toUNS(U2Word8bit U2) {
+		return ~(U2 - 0x1) & 0xFF;
 	}
 
 }

@@ -24,7 +24,7 @@ namespace mos6502emu{
 	}
 
 	inline CyclesUsed TickCPU() {
-		CPU::Tick();
+		return CPU::Tick();
 	}
 
 	inline void RealPPUTick(float deltatime) {
@@ -49,21 +49,25 @@ namespace mos6502emu{
 
 
 	void Reset() {
-		CPUAccDeltaTime = 0;
-		// TODO: reset
+		PPUAccDeltaTime = 0;
+		CPUAccDeltaTime = 0 - (CPU::RESET() * CPUCycleLength );
+	}
 
+	void NMI() {
+		CPU::bNMI = true;
+	}
+
+	void IRQ() {
+		CPU::bIRQ = !CPU::Status.I;
 	}
 
 	void ClearDeltatimeBuffer() {
 		CPUAccDeltaTime = 0;
+		PPUAccDeltaTime = 0;
 	}
 
 	void SetPC(uint_least16_t newPC) {
 		CPU::Reg.PC = newPC;
-	}
-
-	struct CPU::ProcessorRegisters* GetStatus() {
-		return &CPU::Reg;
 	}
 
 	void PPUCallbackDummy() {};

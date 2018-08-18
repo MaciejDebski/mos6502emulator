@@ -4,14 +4,14 @@
 #include "CPU.h"
 
 namespace mos6502emu {
-	static inline void SetFlagsNZ(Word8bit result) {
+	static inline void SetFlagsNZ(Fast8bit result) {
 		CPU::Status.N = (result & 0x80) >> 7;
-		CPU::Status.Z = (result == 0);
+		CPU::Status.Z = ((result & 0xFF) == 0);
 	}
 
-	static inline void ADC(Word8bit data) {
+	static inline void ADC(Fast8bit data) {
 		Word8bit A = CPU::Reg.A;
-		Word16bit sum = (CPU::Reg.A = (A + (data & 0xFF)));
+		Fast16bit sum = (CPU::Reg.A = (A + (data & 0xFF)));
 		
 		CPU::Status.C = (sum > 255);
 		CPU::Status.V = ((A^sum)&(data^sum) & 0x80) >> 7;
@@ -20,30 +20,30 @@ namespace mos6502emu {
 	}
 
 	static inline void ROL(Word16bit address) {
-		Word8bit c = CPU::Status.C;
+		Fast8bit c = CPU::Status.C;
 		CPU::Status.C = CPU::Memory[address] & 0x80 >> 7;
 		CPU::Memory[address] = CPU::Memory[address] << 1;
 		PasteBit(CPU::Memory[address], 0, c);
 	}
 
 	static inline void ROR(Word16bit address) {
-		Word8bit c = CPU::Status.C;
-		CPU::Status.C = CPU::Memory[address] & 0x1;
+		Fast8bit c = CPU::Status.C;
+		CPU::Status.C = CPU::Memory[address]; // no need of & 0x01, such expression is sensitive to LSB anyway.
 		CPU::Memory[address] = CPU::Memory[address] >> 1;
 		PasteBit(CPU::Memory[address], 7, c);
 	}
 
-	static inline void SBC(Word8bit data) {
-		Word8bit A = CPU::Reg.A;
+	static inline void SBC(Fast8bit data) {
+		Fast8bit A = CPU::Reg.A & 0xFF;
 		CPU::Status.C = (data <= A);
 
-		Word8bit diff = (CPU::Reg.A = (A + ((~data) & 0xFF)));
+		Fast8bit diff = (CPU::Reg.A = (A + ((~data) & 0xFF)));
 		CPU::Status.V = ((A^diff)&((~data)^diff) & 0x80) >> 7;
 
 		SetFlagsNZ(diff);
 	}
 
-	CyclesUsed ExecuteOpcode(Word8bit opcode) {
+	CyclesUsed ExecuteOpcode(Fast8bit opcode) {
 		switch (opcode) {
 
 			// ADC
@@ -123,25 +123,25 @@ namespace mos6502emu {
 			return 2;
 		}break;
 		case ASL_ZERO: {
-			Word16bit address = CPU::GetAddr_ZERO();
+			Fast16bit address = CPU::GetAddr_ZERO();
 			CPU::Status.C = (CPU::Memory[address] & 0x80) >> 7;
 			SetFlagsNZ(CPU::Memory[address] = CPU::Memory[address] << 1);
 			return 5;
 		}break;
 		case ASL_ZERO_X: {
-			Word16bit address = CPU::GetAddr_ZERO_X();
+			Fast16bit address = CPU::GetAddr_ZERO_X();
 			CPU::Status.C = (CPU::Memory[address] & 0x80) >> 7;
 			SetFlagsNZ(CPU::Memory[address] = CPU::Memory[address] << 1);
 			return 6;
 		}break;
 		case ASL_ABS: {
-			Word16bit address = CPU::GetAddr_ABS();
+			Fast16bit address = CPU::GetAddr_ABS();
 			CPU::Status.C = (CPU::Memory[address] & 0x80) >> 7;
 			SetFlagsNZ(CPU::Memory[address] = CPU::Memory[address] << 1);
 			return 6;
 		}break;
 		case ASL_ABS_X: {
-			Word16bit address = CPU::GetAddr_ABS_X();
+			Fast16bit address = CPU::GetAddr_ABS_X();
 			CPU::Status.C = (CPU::Memory[address] & 0x80) >> 7;
 			SetFlagsNZ(CPU::Memory[address] = CPU::Memory[address] << 1);
 			return 7;
@@ -150,13 +150,13 @@ namespace mos6502emu {
 
 			// BIT
 		case BIT_ZERO: {
-			Word8bit result = CPU::Reg.A & CPU::Deref_ZERO();
+			Fast8bit result = CPU::Reg.A & CPU::Deref_ZERO();
 			SetFlagsNZ(result);
 			CPU::Status.V = (result & 0x40) >> 6;
 			return 3;
 		}break;
 		case BIT_ABS: {
-			Word8bit result = CPU::Reg.A & CPU::Deref_ABS();
+			Fast8bit result = CPU::Reg.A & CPU::Deref_ABS();
 			SetFlagsNZ(result);
 			CPU::Status.V = (result & 0x40) >> 6;
 			return 4;
@@ -249,56 +249,55 @@ namespace mos6502emu {
 
 			// BREAK
 		case BRK: {
-			CPU::BRK();
-			return 7;
+			return CPU::BRK();
 		}break;
 
 
 			// CMP
 		case CMP_IMM: {
-			Word8bit M = CPU::Deref_PC();
+			Fast8bit M = CPU::Deref_PC();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			return 2;
 		}break;
 		case CMP_ZERO: {
-			Word8bit M = CPU::Deref_ZERO();
+			Fast8bit M = CPU::Deref_ZERO();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			return 3;
 		}break;
 		case CMP_ZERO_X: {
-			Word8bit M = CPU::Deref_ZERO_X();
+			Fast8bit M = CPU::Deref_ZERO_X();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			return 4;
 		}break;
 		case CMP_ABS: {
-			Word8bit M = CPU::Deref_ABS();
+			Fast8bit M = CPU::Deref_ABS();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			return 4;
 		}break;
 		case CMP_ABS_X: {
-			Word8bit M = CPU::Deref_ABS_X();
+			Fast8bit M = CPU::Deref_ABS_X();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case CMP_ABS_Y: {
-			Word8bit M = CPU::Deref_ABS_Y();
+			Fast8bit M = CPU::Deref_ABS_Y();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case CMP_IND_X: {
-			Word8bit M = CPU::Deref_IND_X();
+			Fast8bit M = CPU::Deref_IND_X();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			return 6;
 		}break;
 		case CMP_IND_Y: {
-			Word8bit M = CPU::Deref_IND_Y();
+			Fast8bit M = CPU::Deref_IND_Y();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			return 5 + CPU::PageBoundaryCrossed();
@@ -307,19 +306,19 @@ namespace mos6502emu {
 
 			// CPX
 		case CPX_IMM: {
-			Word8bit M = CPU::Deref_PC();
+			Fast8bit M = CPU::Deref_PC();
 			SetFlagsNZ(CPU::Reg.X - M);
 			CPU::Status.C = CPU::Reg.X >= M;
 			return 2;
 		}break;
 		case CPX_ZERO: {
-			Word8bit M = CPU::Deref_ZERO();
+			Fast8bit M = CPU::Deref_ZERO();
 			SetFlagsNZ(CPU::Reg.X - M);
 			CPU::Status.C = CPU::Reg.X >= M;
 			return 3;
 		}break;
 		case CPX_ABS: {
-			Word8bit M = CPU::Deref_ABS();
+			Fast8bit M = CPU::Deref_ABS();
 			SetFlagsNZ(CPU::Reg.X - M);
 			CPU::Status.C = CPU::Reg.X >= M;
 			return 4;
@@ -329,19 +328,19 @@ namespace mos6502emu {
 
 			// CPY
 		case CPY_IMM: {
-			Word8bit M = CPU::Deref_PC();
+			Fast8bit M = CPU::Deref_PC();
 			SetFlagsNZ(CPU::Reg.Y - M);
 			CPU::Status.C = CPU::Reg.Y >= M;
 			return 2;
 		}break;
 		case CPY_ZERO: {
-			Word8bit M = CPU::Deref_ZERO();
+			Fast8bit M = CPU::Deref_ZERO();
 			SetFlagsNZ(CPU::Reg.Y - M);
 			CPU::Status.C = CPU::Reg.Y >= M;
 			return 3;
 		}break;
 		case CPY_ABS: {
-			Word8bit M = CPU::Deref_ABS();
+			Fast8bit M = CPU::Deref_ABS();
 			SetFlagsNZ(CPU::Reg.Y - M);
 			CPU::Status.C = CPU::Reg.Y >= M;
 			return 4;
@@ -560,25 +559,25 @@ namespace mos6502emu {
 			return 2;
 		}break;
 		case LSR_ZERO: {
-			Word16bit address = CPU::GetAddr_ZERO();
+			Fast16bit address = CPU::GetAddr_ZERO();
 			CPU::Status.C = (CPU::Memory[address] & 0x1);
 			SetFlagsNZ(CPU::Memory[address] = CPU::Memory[address] >> 1);
 			return 5;
 		}break;
 		case LSR_ZERO_X: {
-			Word16bit address = CPU::GetAddr_ZERO_X();
+			Fast16bit address = CPU::GetAddr_ZERO_X();
 			CPU::Status.C = (CPU::Memory[address] & 0x1);
 			SetFlagsNZ(CPU::Memory[address] = CPU::Memory[address] >> 1);
 			return 6;
 		}break;
 		case LSR_ABS: {
-			Word16bit address = CPU::GetAddr_ABS();
+			Fast16bit address = CPU::GetAddr_ABS();
 			CPU::Status.C = (CPU::Memory[address] & 0x1);
 			SetFlagsNZ(CPU::Memory[address] = CPU::Memory[address] >> 1);
 			return 6;
 		}break;
 		case LSR_ABS_X: {
-			Word16bit address = CPU::GetAddr_ABS_X();
+			Fast16bit address = CPU::GetAddr_ABS_X();
 			CPU::Status.C = (CPU::Memory[address] & 0x1);
 			SetFlagsNZ(CPU::Memory[address] = CPU::Memory[address] >> 1);
 			return 7;
@@ -664,7 +663,7 @@ namespace mos6502emu {
 
 			// ROL
 		case ROL_ACC: {
-			Word8bit c = CPU::Status.C;
+			Fast8bit c = CPU::Status.C;
 			CPU::Status.C = CPU::Reg.A & 0x80 >> 7;
 			CPU::Reg.A = CPU::Reg.A << 1;
 			PasteBit(CPU::Reg.A, 0, c);
@@ -690,7 +689,7 @@ namespace mos6502emu {
 
 			// ROR
 		case ROR_ACC: {
-			Word8bit c = CPU::Status.C;
+			Fast8bit c = CPU::Status.C;
 			CPU::Status.C = CPU::Reg.A & 0x1;
 			CPU::Reg.A = CPU::Reg.A >> 1;
 			PasteBit(CPU::Reg.A, 7, c);
@@ -797,11 +796,11 @@ namespace mos6502emu {
 
 			// Stack Instructions
 		case TXS: {
-			CPU::Reg.SP = CPU::Reg.X;
+			CPU::Reg.SP = CPU::Reg.X & 0xFF;
 			return 2;
 		}break;
 		case TSX: {
-			SetFlagsNZ(CPU::Reg.X = CPU::Reg.SP);
+			SetFlagsNZ(CPU::Reg.X = CPU::Reg.SP & 0xFF);
 			return 2;
 		}break;
 		case PHA: {
@@ -813,7 +812,9 @@ namespace mos6502emu {
 			return 4;
 		}break;
 		case PHP: {
-			CPU::Stack_Push(CPU::Status.all_flags);
+			CPU::StatusRegisters p = CPU::Status;
+			p.B = 1;
+			CPU::Stack_Push(p.all_flags);
 			return 3;
 		}break;
 		case PLP: {
@@ -855,7 +856,7 @@ namespace mos6502emu {
 
 		default: {
 			// illegal instructions, for now, do nothing. Same as NOP.
-			LOG("Opcode not supported by this emulator: %x", opcode);
+			LOG("Opcode not supported by this emulator: %hhX", opcode);
 			// return 1 to simply push the CPU forward, doing nothing. 1 cycle might not be true for illegal opcodes but its true when there is no ROM and user is trying to run the CPU.
 			return 1;
 		}break;
