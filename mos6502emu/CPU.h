@@ -30,6 +30,7 @@ namespace mos6502emu {
 		typedef Fast8bit MemoryCell;
 		extern MemoryCell Memory[65535];
 
+		inline void PowerUp();
 		inline CyclesUsed Tick();
 
 		inline bool PageBoundaryCrossed();

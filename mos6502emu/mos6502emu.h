@@ -30,6 +30,8 @@ namespace mos6502emu {
 	// Memory
 	extern Fast8bit Memory[65535];
 
+	// Initialization
+	void PowerUp();
 	void InsertROM(const Fast8bit** rom, Word16bit size);
 
 	// Update

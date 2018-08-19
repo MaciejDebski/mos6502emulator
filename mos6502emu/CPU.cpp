@@ -21,6 +21,19 @@ namespace mos6502emu {
 #define __IND_X__(addr_LSbyte) (__ABS__(Memory[__ZERO__((addr_LSbyte) + Reg.X)], Memory[__ZERO__((addr_LSbyte) + Reg.X + 0x1)])) // Indirect X adds X register to 8 bit address, wrapping around if 0xFF is overstepped.
 #define __IND_Y__(addr_LSbyte) ( AddTestingPageBoundary( (__ABS__(Memory[__ZERO__((addr_LSbyte))], Memory[__ZERO__((addr_LSbyte) + 0x1)])), Reg.Y )) // Indirect Y adds Y register to full 16 bit address, wrapping around if 0xFFFF is overstepped.
 
+		inline void PowerUp() {
+			Status.all_flags = 0x34;
+			Reg.A = 0x0;
+			Reg.X = 0x0;
+			Reg.Y = 0x0;
+			Reg.SP = 0xFD;
+			Memory[0x4017] = 0x0;
+			Memory[0x4015] = 0x0;
+			for (int i = 0; i < 0x10; ++i) {
+				Memory[0x4000 + i] = 0x0; // APU noise channels;
+			}
+		}
+
 		inline CyclesUsed Tick() {
 			return ExecuteOpcode(Memory[Reg.PC++]) + InterruptCheck();
 		}
@@ -253,6 +266,7 @@ namespace mos6502emu {
 			Stack_FakePush();
 			Reg.PC = __ABS__(Memory[0xFFFC], Memory[0xFFFD]);
 			Status.I = 1;
+			Memory[0x4015] = 0x0; // NES version of mos6502 silencing APU at reset.
 			return 7;
 		}
 

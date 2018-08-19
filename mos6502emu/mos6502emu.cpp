@@ -9,6 +9,10 @@ namespace mos6502emu{
 	static float PPUAccDeltaTime;
 	static void(*PPUCallback)() = PPUCallbackDummy;
 
+	void PowerUp() {
+		CPU::PowerUp();
+	}
+
 	void InsertROM(const Fast8bit** rom, Word16bit size) {
 		if (size > 0xBFE0) {
 			return;
