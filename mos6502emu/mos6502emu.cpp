@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CPU.h"
+#include "string.h"
 
 namespace mos6502emu{
 	void PPUCallbackDummy();
@@ -7,6 +8,13 @@ namespace mos6502emu{
 	static float CPUAccDeltaTime;
 	static float PPUAccDeltaTime;
 	static void(*PPUCallback)() = PPUCallbackDummy;
+
+	void InsertROM(const Fast8bit** rom, Word16bit size) {
+		if (size > 0xBFE0) {
+			return;
+		}
+		memcpy(&Memory[0x4020], &rom, size);
+	}
 
 	void Update(float deltatime) {
 		RealCPUTick(deltatime);

@@ -27,8 +27,10 @@ namespace mos6502emu {
 	static float PPUCycleLength = PPUCycleLength_Default;
 	static uint_least16_t InitialPC = 0x00;
 
-	// ROM
-	const char* ROMCartridge;
+	// Memory
+	extern Fast8bit Memory[65535];
+
+	void InsertROM(const Fast8bit** rom, Word16bit size);
 
 	// Update
 	void Update(float deltatime);
