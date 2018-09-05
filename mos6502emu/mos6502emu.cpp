@@ -9,15 +9,20 @@ namespace mos6502emu{
 	static float PPUAccDeltaTime;
 	static void(*PPUCallback)() = PPUCallbackDummy;
 
-	void PowerUp() {
-		CPU::PowerUp();
+	bool InsertROM(Fast8bit* rom, Word16bit size) {
+		if (size > 0xBFE0) {
+			LOG("\nError! -- InsertROM: rom size is too extensive.\n\n")
+				return false;
+		}
+		return InsertROM(0x4020, rom, size);
 	}
 
-	void InsertROM(const Fast8bit** rom, Word16bit size) {
-		if (size > 0xBFE0) {
-			return;
+	bool InsertROM(Word16bit PC, Fast8bit* rom, Word16bit size) {
+		if (rom == nullptr) {
+			return false;
 		}
-		memcpy(&Memory[0x4020], &rom, size);
+		memcpy(&Memory[PC], &rom[0], size * sizeof(Fast8bit));
+		return true;
 	}
 
 	void Update(float deltatime) {
@@ -26,20 +31,23 @@ namespace mos6502emu{
 	}
 
 	void RealCPUTick(float deltatime) {
+		debug::bBufferLog = true;
 		CPUAccDeltaTime += deltatime;
 		while(CPUAccDeltaTime >= CPUCycleLength) {
 
-			float cycles = TickCPU() * CPUCycleLength;
+			float cycles = CPU::Tick() * CPUCycleLength;
 			CPUAccDeltaTime -= (cycles);
 
 		}
+		debug::SendLog();
 	}
 
-	inline CyclesUsed TickCPU() {
+	CyclesUsed TickCPU() {
+		debug::bBufferLog = false;
 		return CPU::Tick();
 	}
 
-	inline void RealPPUTick(float deltatime) {
+	void RealPPUTick(float deltatime) {
 		PPUAccDeltaTime += deltatime;
 		while (PPUAccDeltaTime >= PPUCycleLength) {
 			TickPPU();
@@ -47,7 +55,7 @@ namespace mos6502emu{
 		}
 	}
 
-	inline void TickPPU() {
+	void TickPPU() {
 		PPUCallback();
 	}
 
@@ -78,7 +86,7 @@ namespace mos6502emu{
 		PPUAccDeltaTime = 0;
 	}
 
-	void SetPC(uint_least16_t newPC) {
+	void SetPC(Word16bit newPC) {
 		CPU::Reg.PC = newPC;
 	}
 

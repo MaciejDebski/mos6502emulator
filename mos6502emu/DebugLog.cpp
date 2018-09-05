@@ -1,9 +1,19 @@
 #include "stdafx.h"
+#include <string>
+#include <sstream>
 
 namespace mos6502emu {
 	namespace debug {
+		bool bBufferLog;
+
 		static void LogCallbackDummy(const char* message, int count) {};
 		static void(*LogCallback)(const char* message, int count) = LogCallbackDummy;
+
+		static std::stringstream LastUpdateMessageStream;
+
+		static inline void AddToDebugBuffer(const char* message, int count) {
+			LastUpdateMessageStream << std::string(message, count);
+		}
 
 		void SetDebugCallback(void(*callback)(const char* message, int count)) {
 			if (callback == nullptr) {
@@ -18,8 +28,18 @@ namespace mos6502emu {
 			char buffer[128];
 			int count = vsprintf_s(buffer, 128, text, args);
 
-			LogCallback(buffer, count);
+			if (bBufferLog) {
+				AddToDebugBuffer(buffer, count);
+			}
+			else {
+				LogCallback(buffer, count);
+			}
 		};
+
+		void SendLog() {
+			LogCallback(LastUpdateMessageStream.str().c_str(), (int)LastUpdateMessageStream.str().size());
+			LastUpdateMessageStream.str(std::string(""));
+		}
 	}
 }
 

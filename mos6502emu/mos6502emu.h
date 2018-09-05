@@ -18,6 +18,7 @@ namespace mos6502emu {
 	typedef uint16_t Word16bit;
 	typedef uint8_t Word8bit;
 	typedef int_fast8_t U2Word8bit;
+	typedef Fast8bit MemoryCell;
 
 	// Parameters
 	static const float CPUClockSpeedHZ = 21477272;
@@ -25,25 +26,25 @@ namespace mos6502emu {
 	static const float PPUCycleLength_Default = 1 / (CPUClockSpeedHZ / 4);
 	static float CPUCycleLength = CPUCycleLength_Default;
 	static float PPUCycleLength = PPUCycleLength_Default;
-	static uint_least16_t InitialPC = 0x00;
+	static Word16bit InitialPC = 0x4020;
 
 	// Memory
-	extern Fast8bit Memory[65535];
+	extern MemoryCell Memory[65535];
 
 	// Initialization
-	void PowerUp();
-	void InsertROM(const Fast8bit** rom, Word16bit size);
+	bool InsertROM(Fast8bit* rom, Word16bit size);
+	bool InsertROM(Word16bit PC, Fast8bit* rom, Word16bit size);
 
 	// Update
 	void Update(float deltatime);
 
 	// CPU
 	void RealCPUTick(float deltatime);
-	inline CyclesUsed TickCPU();
+	CyclesUsed TickCPU();
 
 	// PPU
-	inline void RealPPUTick(float deltatime);
-	inline void TickPPU();
+	void RealPPUTick(float deltatime);
+	void TickPPU();
 	void SetPPUCallback(void(*callback)());
 
 	// Controls
@@ -51,7 +52,7 @@ namespace mos6502emu {
 	void NMI();
 	void IRQ();
 	void ClearDeltatimeBuffer();
-	void SetPC(uint_least16_t newPC);
+	void SetPC(Word16bit newPC);
 
 	// Debug
 	void SetDebugCallback(void(*callback)(const char* message, int count));

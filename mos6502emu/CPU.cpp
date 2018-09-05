@@ -4,8 +4,13 @@
 #include "Opcodes_mos6502.h"
 
 namespace mos6502emu {
+	MemoryCell Memory[65535];
+
 	namespace CPU {
-		MemoryCell Memory[65535];
+		StatusRegisters Status;
+		ProcessorRegisters Reg;
+
+		bool bIsNotInitialized = 1;
 		bool bPageBoundaryCrossed;
 
 #define __ABS__(addr_LSbyte, addr_MSbyte) ((0xFF00 & ((addr_MSbyte) << 8)) | (0x00FF & (addr_LSbyte)))
@@ -21,12 +26,7 @@ namespace mos6502emu {
 #define __IND_X__(addr_LSbyte) (__ABS__(Memory[__ZERO__((addr_LSbyte) + Reg.X)], Memory[__ZERO__((addr_LSbyte) + Reg.X + 0x1)])) // Indirect X adds X register to 8 bit address, wrapping around if 0xFF is overstepped.
 #define __IND_Y__(addr_LSbyte) ( AddTestingPageBoundary( (__ABS__(Memory[__ZERO__((addr_LSbyte))], Memory[__ZERO__((addr_LSbyte) + 0x1)])), Reg.Y )) // Indirect Y adds Y register to full 16 bit address, wrapping around if 0xFFFF is overstepped.
 
-		inline void PowerUp() {
-			Status.all_flags = 0x34;
-			Reg.A = 0x0;
-			Reg.X = 0x0;
-			Reg.Y = 0x0;
-			Reg.SP = 0xFD;
+		static void PowerUp() {
 			Memory[0x4017] = 0x0;
 			Memory[0x4015] = 0x0;
 			for (int i = 0; i < 0x10; ++i) {
@@ -34,11 +34,11 @@ namespace mos6502emu {
 			}
 		}
 
-		inline CyclesUsed Tick() {
-			return ExecuteOpcode(Memory[Reg.PC++]) + InterruptCheck();
+		CyclesUsed Tick() {
+			return ExecuteOpcode(Memory[Reg.PC]) + InterruptCheck();
 		}
 
-		inline bool PageBoundaryCrossed() {
+		bool PageBoundaryCrossed() {
 			bool extra_cycle = bPageBoundaryCrossed;
 			bPageBoundaryCrossed = 0;
 			return extra_cycle;
@@ -52,145 +52,153 @@ namespace mos6502emu {
 
 
 		// GET ADDRESS
-		inline Fast16bit GetAddr_(Fast8bit LSbyte, Fast8bit MSbyte) {
+		Fast16bit GetAddr_(Fast8bit LSbyte, Fast8bit MSbyte) {
 			return __ABS__(LSbyte, MSbyte);
 		}
 
-		inline Fast16bit GetAddr_ABS() {
-			return __ABS__(Memory[++Reg.PC], Memory[++Reg.PC]);
+		Fast16bit GetAddr_ABS() {
+			Word8bit LSB = Memory[++Reg.PC];
+			Word8bit MSB = Memory[++Reg.PC];
+			return __ABS__(LSB, MSB);
 		}
 
-		inline Fast16bit GetAddr_ABS_X() {
-			return __ABS_X__(Memory[++Reg.PC], Memory[++Reg.PC]);
+		Fast16bit GetAddr_ABS_X() {
+			Word8bit LSB = Memory[++Reg.PC];
+			Word8bit MSB = Memory[++Reg.PC];
+			return __ABS_X__(LSB, MSB);
 		}
 
-		inline Fast16bit GetAddr_ABS_Y() {
-			return __ABS_Y__(Memory[++Reg.PC], Memory[++Reg.PC]);
+		Fast16bit GetAddr_ABS_Y() {
+			Word8bit LSB = Memory[++Reg.PC];
+			Word8bit MSB = Memory[++Reg.PC];
+			return __ABS_Y__(LSB, MSB);
 		}
 
-		inline Fast16bit GetAddr_ZERO() {
+		Fast16bit GetAddr_ZERO() {
 			return __ZERO__(Memory[++Reg.PC]);
 		}
 
-		inline Fast16bit GetAddr_ZERO_X() {
+		Fast16bit GetAddr_ZERO_X() {
 			return __ZERO_X__(Memory[++Reg.PC]);
 		}
 
-		inline Fast16bit GetAddr_ZERO_Y() {
+		Fast16bit GetAddr_ZERO_Y() {
 			return __ZERO_Y__(Memory[++Reg.PC]);
 		}
 
-		inline Fast16bit GetAddr_REL() {
+		Fast16bit GetAddr_REL() {
 			return __REL__(Memory[++Reg.PC]);
 		}
 
-		inline Fast16bit GetAddr_IND() {
-			return __IND__(Memory[++Reg.PC], Memory[++Reg.PC]);
+		Fast16bit GetAddr_IND() {
+			Word8bit LSB = Memory[++Reg.PC];
+			Word8bit MSB = Memory[++Reg.PC];
+			return __IND__(LSB, MSB);
 		}
 
-		inline Fast16bit GetAddr_IND_X() {
+		Fast16bit GetAddr_IND_X() {
 			return __IND_X__(Memory[++Reg.PC]);
 		}
 
-		inline Fast16bit GetAddr_IND_Y() {
+		Fast16bit GetAddr_IND_Y() {
 			return __IND_Y__(Memory[++Reg.PC]);
 		}
 
 
 		// WRITE
-		inline void Write_ACC(Fast8bit data) {
+		void Write_ACC(Fast8bit data) {
 			Reg.A = data;
 		}
 
-		inline void Write_ABS(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
+		void Write_ABS(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
 			Memory[__ABS__(addr_LSbyte, addr_MSbyte)] = data;
 		}
 
-		inline void Write_ABS_X(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
+		void Write_ABS_X(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
 			Memory[__ABS_X__(addr_LSbyte, addr_MSbyte)] = data;
 		}
 
-		inline void Write_ABS_Y(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
+		void Write_ABS_Y(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
 			Memory[__ABS_Y__(addr_LSbyte, addr_MSbyte)] = data;
 		}
 
-		inline void Write_ZERO(Fast8bit data, Fast8bit addr_LSbyte) {
+		void Write_ZERO(Fast8bit data, Fast8bit addr_LSbyte) {
 			Memory[__ZERO__(addr_LSbyte)] = data;
 		}
 
-		inline void Write_ZERO_X(Fast8bit data, Fast8bit addr_LSbyte) {
+		void Write_ZERO_X(Fast8bit data, Fast8bit addr_LSbyte) {
 			Memory[__ZERO_X__(addr_LSbyte)] = data;
 		}
 
-		inline void Write_ZERO_Y(Fast8bit data, Fast8bit addr_LSbyte) {
+		void Write_ZERO_Y(Fast8bit data, Fast8bit addr_LSbyte) {
 			Memory[__ZERO_Y__(addr_LSbyte)] = data;
 		}
 
-		inline void Write_REL(Fast8bit data, Fast8bit addr_LSbyte) {
+		void Write_REL(Fast8bit data, Fast8bit addr_LSbyte) {
 			Memory[__REL__(addr_LSbyte)] = data;
 		}
 
-		inline void Write_IND(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
+		void Write_IND(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
 			Memory[__IND__(addr_LSbyte, addr_MSbyte)] = data;
 		}
 
-		inline void Write_IND_X(Fast8bit data, Fast8bit addr_LSbyte) {
+		void Write_IND_X(Fast8bit data, Fast8bit addr_LSbyte) {
 			Memory[__IND_X__(addr_LSbyte)] = data;
 		}
 
-		inline void Write_IND_Y(Fast8bit data, Fast8bit addr_LSbyte) {
+		void Write_IND_Y(Fast8bit data, Fast8bit addr_LSbyte) {
 			Memory[__IND_Y__(addr_LSbyte)] = data;
 		}
 
 
 
 		// READ
-		inline Fast8bit Deref_PC() {
+		Fast8bit Deref_PC() {
 			return Memory[++Reg.PC];
 		}
 
-		inline Fast8bit Deref_ABS() {
-			return Memory[__ABS__(Memory[++Reg.PC], Memory[++Reg.PC])];
+		Fast8bit Deref_ABS() {
+			return Memory[GetAddr_ABS()];
 		}
 
-		inline Fast8bit Deref_ABS_X() {
-			return Memory[__ABS_X__(Memory[++Reg.PC], Memory[++Reg.PC])];
+		Fast8bit Deref_ABS_X() {
+			return Memory[GetAddr_ABS_X()];
 		}
 
-		inline Fast8bit Deref_ABS_Y() {
-			return Memory[__ABS_Y__(Memory[++Reg.PC], Memory[++Reg.PC])];
+		Fast8bit Deref_ABS_Y() {
+			return Memory[GetAddr_ABS_Y()];
 		}
 
-		inline Fast8bit Deref_ZERO() {
-			return Memory[__ZERO__(Memory[++Reg.PC])];
+		Fast8bit Deref_ZERO() {
+			return Memory[GetAddr_ZERO()];
 		}
 
-		inline Fast8bit Deref_ZERO_X() {
-			return Memory[__ZERO_X__(Memory[++Reg.PC])];
+		Fast8bit Deref_ZERO_X() {
+			return Memory[GetAddr_ZERO_X()];
 		}
 
-		inline Fast8bit Deref_ZERO_Y() {
-			return Memory[__ZERO_Y__(Memory[++Reg.PC])];
+		Fast8bit Deref_ZERO_Y() {
+			return Memory[GetAddr_ZERO_Y()];
 		}
 		
-		inline Fast8bit Deref_REL() {
-			return Memory[__REL__(Memory[++Reg.PC])];
+		Fast8bit Deref_REL() {
+			return Memory[GetAddr_REL()];
 		}
 
-		inline Fast8bit Deref_IND() {
-			return Memory[__IND__(Memory[++Reg.PC], Memory[++Reg.PC])];
+		Fast8bit Deref_IND() {
+			return Memory[GetAddr_IND()];
 		}
 
-		inline Fast8bit Deref_IND_X() {
-			return Memory[__IND_X__(Memory[++Reg.PC])];
+		Fast8bit Deref_IND_X() {
+			return Memory[GetAddr_IND_X()];
 		}
 
-		inline Fast8bit Deref_IND_Y() {
-			return Memory[__IND_Y__(Memory[++Reg.PC])];
+		Fast8bit Deref_IND_Y() {
+			return Memory[GetAddr_IND_Y()];
 		}
 
 
-		inline void Stack_Push(Fast8bit data) {
+		void Stack_Push(Fast8bit data) {
 			--Reg.SP;
 			if (Stack_IsFull()) {
 				// TODO: throw INT;
@@ -200,7 +208,7 @@ namespace mos6502emu {
 			Memory[0x0100 + Reg.SP + 1] = data;
 		}
 
-		inline Fast8bit Stack_Pull() {
+		Fast8bit Stack_Pull() {
 			++Reg.SP;
 			if (Stack_IsEmpty()) {
 				// TODO: throw INT;
@@ -209,31 +217,32 @@ namespace mos6502emu {
 			return Memory[0x0100 + Reg.SP];
 		}
 
-		inline bool Stack_IsEmpty() {
+		bool Stack_IsEmpty() {
 			return Reg.SP == 0x00;
 		}
 
-		inline bool Stack_IsFull() {
+		bool Stack_IsFull() {
 			return Reg.SP == 0xFF;
 		}
 
-		static inline void Stack_FakePush() {
+		static void Stack_FakePush() {
 			// FakePush is a push executed in read mode, so no values are overwrited on the stack.
 			// It does not throw overflow as it is used mainly by reset sequence to initialize stack.
 			--Reg.SP;
 		}
 
-		static inline void Interrupt(Fast16bit VectorLow, Fast16bit VectorHigh, Fast8bit flag_B) {
+		static void Interrupt(Fast16bit VectorLow, Fast16bit VectorHigh, Fast8bit flag_B) {
 			Stack_Push((Reg.PC & 0xFF00) >> 8); // Push PC High byte on stack
 			Stack_Push(Reg.PC & 0xFF);	// Push PC Low byte on stack
-			StatusRegisters p = Status;
+			volatile StatusRegisters p;
+			p.all_flags = Status.all_flags;
 			p.B = flag_B;
 			Stack_Push(p.all_flags);
 			Reg.PC = __ABS__(Memory[VectorLow], Memory[VectorHigh]);
 			Status.I = 1;
 		}
 
-		inline CyclesUsed InterruptCheck() {
+		CyclesUsed InterruptCheck() {
 			if (bNMI) {
 				bNMI = false;
 				return CPU::NMI();
@@ -242,25 +251,29 @@ namespace mos6502emu {
 				bIRQ = false;
 				return CPU::IRQ();
 			}
+			return 0;
 		}
 
-		inline CyclesUsed BRK() {
+		CyclesUsed BRK() {
 			Interrupt(0xFFFE, 0xFFFF, 1);
 			return 7;
 		}
 
-		inline CyclesUsed IRQ() {
+		CyclesUsed IRQ() {
 			Interrupt(0xFFFE, 0xFFFF, 0);
 			return 7;
 		}
 
-		inline CyclesUsed NMI() {
+		CyclesUsed NMI() {
 			Interrupt(0xFFFA, 0xFFFB, 0);
 			return 7;
 		}
 
-		inline CyclesUsed RESET() {
-			Reg.SP = 0x00;
+		CyclesUsed RESET() {
+			if (bIsNotInitialized) {
+				PowerUp();
+				bIsNotInitialized = 0;
+			}
 			Stack_FakePush();	// Only in the NMOS version of 6502?
 			Stack_FakePush();
 			Stack_FakePush();
