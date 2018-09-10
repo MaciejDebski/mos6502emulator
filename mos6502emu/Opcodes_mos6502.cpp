@@ -19,18 +19,32 @@ namespace mos6502emu {
 		SetFlagsNZ(sum);
 	}
 
+	static inline void ASL(Word16bit address) {
+		Fast8bit value = Memory[address].Read();
+		CPU::Status.C = (value & 0x80) >> 7;
+		SetFlagsNZ(value <<= 1);
+		Memory[address].Write(value);
+	}
+
+	static inline void LSR(Word16bit address) {
+		Fast8bit value = Memory[address].Read();
+		CPU::Status.C = (value & 0x1);
+		SetFlagsNZ(value >>= 1);
+		Memory[address].Write(value);
+	}
+
 	static inline void ROL(Word16bit address) {
 		Fast8bit c = CPU::Status.C;
-		CPU::Status.C = Memory[address] & 0x80 >> 7;
-		Memory[address] = Memory[address] << 1;
-		PasteBit(Memory[address], 0, c);
+		Fast8bit value = Memory[address].Read();
+		CPU::Status.C = value & 0x80 >> 7;
+		Memory[address].Write(PASTE_BIT(value << 1, 0, c));
 	}
 
 	static inline void ROR(Word16bit address) {
 		Fast8bit c = CPU::Status.C;
-		CPU::Status.C = Memory[address]; // no need of & 0x01, such expression is sensitive to LSB anyway.
-		Memory[address] = Memory[address] >> 1;
-		PasteBit(Memory[address], 7, c);
+		Fast8bit value = Memory[address].Read();
+		CPU::Status.C = value; // no need of clearing MSBits (Memory[address] & 0x01), the expression needs LSB in this case.
+		Memory[address].Write(PASTE_BIT(value >> 1, 7, c));
 	}
 
 	static inline void SBC(Fast8bit data) {
@@ -49,7 +63,7 @@ namespace mos6502emu {
 
 			// ADC
 		case ADC_IMM: {
-			ADC(CPU::Deref_PC());
+			ADC(CPU::Deref_IMM());
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -92,7 +106,7 @@ namespace mos6502emu {
 
 			// AND
 		case AND_IMM: {
-			SetFlagsNZ(CPU::Reg.A &= Memory[++CPU::Reg.PC]);
+			SetFlagsNZ(CPU::Reg.A &= CPU::Deref_IMM());
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -141,30 +155,22 @@ namespace mos6502emu {
 			return 2;
 		}break;
 		case ASL_ZERO: {
-			Fast16bit address = CPU::GetAddr_ZERO();
-			CPU::Status.C = (Memory[address] & 0x80) >> 7;
-			SetFlagsNZ(Memory[address] = Memory[address] << 1);
+			ASL(CPU::GetAddr_ZERO());
 			++CPU::Reg.PC;
 			return 5;
 		}break;
 		case ASL_ZERO_X: {
-			Fast16bit address = CPU::GetAddr_ZERO_X();
-			CPU::Status.C = (Memory[address] & 0x80) >> 7;
-			SetFlagsNZ(Memory[address] = Memory[address] << 1);
+			ASL(CPU::GetAddr_ZERO_X());
 			++CPU::Reg.PC;
 			return 6;
 		}break;
 		case ASL_ABS: {
-			Fast16bit address = CPU::GetAddr_ABS();
-			CPU::Status.C = (Memory[address] & 0x80) >> 7;
-			SetFlagsNZ(Memory[address] = Memory[address] << 1);
+			ASL(CPU::GetAddr_ABS());
 			++CPU::Reg.PC;
 			return 6;
 		}break;
 		case ASL_ABS_X: {
-			Fast16bit address = CPU::GetAddr_ABS_X();
-			CPU::Status.C = (Memory[address] & 0x80) >> 7;
-			SetFlagsNZ(Memory[address] = Memory[address] << 1);
+			ASL(CPU::GetAddr_ABS_X());
 			++CPU::Reg.PC;
 			return 7;
 		}break;
@@ -287,7 +293,7 @@ namespace mos6502emu {
 
 			// CMP
 		case CMP_IMM: {
-			Fast8bit M = CPU::Deref_PC();
+			Fast8bit M = CPU::Deref_IMM();
 			SetFlagsNZ(CPU::Reg.A - M);
 			CPU::Status.C = CPU::Reg.A >= M;
 			++CPU::Reg.PC;
@@ -346,7 +352,7 @@ namespace mos6502emu {
 
 			// CPX
 		case CPX_IMM: {
-			Fast8bit M = CPU::Deref_PC();
+			Fast8bit M = CPU::Deref_IMM();
 			SetFlagsNZ(CPU::Reg.X - M);
 			CPU::Status.C = CPU::Reg.X >= M;
 			++CPU::Reg.PC;
@@ -371,7 +377,7 @@ namespace mos6502emu {
 
 			// CPY
 		case CPY_IMM: {
-			Fast8bit M = CPU::Deref_PC();
+			Fast8bit M = CPU::Deref_IMM();
 			SetFlagsNZ(CPU::Reg.Y - M);
 			CPU::Status.C = CPU::Reg.Y >= M;
 			++CPU::Reg.PC;
@@ -418,7 +424,7 @@ namespace mos6502emu {
 
 			// EOR
 		case EOR_IMM: {
-			SetFlagsNZ( CPU::Reg.A ^= CPU::Deref_PC() );
+			SetFlagsNZ( CPU::Reg.A ^= CPU::Deref_IMM() );
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -542,7 +548,7 @@ namespace mos6502emu {
 
 			// LDA
 		case LDA_IMM: {
-			SetFlagsNZ(CPU::Reg.A = CPU::Deref_PC());
+			SetFlagsNZ(CPU::Reg.A = CPU::Deref_IMM());
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -585,7 +591,7 @@ namespace mos6502emu {
 
 			// LDX
 		case LDX_IMM: {
-			SetFlagsNZ(CPU::Reg.X = CPU::Deref_PC());
+			SetFlagsNZ(CPU::Reg.X = CPU::Deref_IMM());
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -613,7 +619,7 @@ namespace mos6502emu {
 
 			// LDY
 		case LDY_IMM: {
-			SetFlagsNZ(CPU::Reg.Y = CPU::Deref_PC());
+			SetFlagsNZ(CPU::Reg.Y = CPU::Deref_IMM());
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -647,30 +653,22 @@ namespace mos6502emu {
 			return 2;
 		}break;
 		case LSR_ZERO: {
-			Fast16bit address = CPU::GetAddr_ZERO();
-			CPU::Status.C = (Memory[address] & 0x1);
-			SetFlagsNZ(Memory[address] = Memory[address] >> 1);
+			LSR(CPU::GetAddr_ZERO());
 			++CPU::Reg.PC;
 			return 5;
 		}break;
 		case LSR_ZERO_X: {
-			Fast16bit address = CPU::GetAddr_ZERO_X();
-			CPU::Status.C = (Memory[address] & 0x1);
-			SetFlagsNZ(Memory[address] = Memory[address] >> 1);
+			LSR(CPU::GetAddr_ZERO_X());
 			++CPU::Reg.PC;
 			return 6;
 		}break;
 		case LSR_ABS: {
-			Fast16bit address = CPU::GetAddr_ABS();
-			CPU::Status.C = (Memory[address] & 0x1);
-			SetFlagsNZ(Memory[address] = Memory[address] >> 1);
+			LSR(CPU::GetAddr_ABS());
 			++CPU::Reg.PC;
 			return 6;
 		}break;
 		case LSR_ABS_X: {
-			Fast16bit address = CPU::GetAddr_ABS_X();
-			CPU::Status.C = (Memory[address] & 0x1);
-			SetFlagsNZ(Memory[address] = Memory[address] >> 1);
+			LSR(CPU::GetAddr_ABS_X());
 			++CPU::Reg.PC;
 			return 7;
 		}break;
@@ -685,7 +683,7 @@ namespace mos6502emu {
 
 			// ORA
 		case ORA_IMM: {
-			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_PC());
+			SetFlagsNZ(CPU::Reg.A |= CPU::Deref_IMM());
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -774,7 +772,7 @@ namespace mos6502emu {
 			Fast8bit c = CPU::Status.C;
 			CPU::Status.C = CPU::Reg.A & 0x80 >> 7;
 			CPU::Reg.A = CPU::Reg.A << 1;
-			PasteBit(CPU::Reg.A, 0, c);
+			PASTE_BIT(CPU::Reg.A, 0, c);
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -805,7 +803,7 @@ namespace mos6502emu {
 			Fast8bit c = CPU::Status.C;
 			CPU::Status.C = CPU::Reg.A & 0x1;
 			CPU::Reg.A = CPU::Reg.A >> 1;
-			PasteBit(CPU::Reg.A, 7, c);
+			PASTE_BIT(CPU::Reg.A, 7, c);
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -852,7 +850,7 @@ namespace mos6502emu {
 
 			// SBC
 		case SBC_IMM: {
-			SBC(CPU::Deref_PC());
+			SBC(CPU::Deref_IMM());
 			++CPU::Reg.PC;
 			return 2;
 		}break;
@@ -895,37 +893,37 @@ namespace mos6502emu {
 
 			// STA
 		case STA_ZERO: {
-			Memory[CPU::GetAddr_ZERO()] = CPU::Reg.A;
+			Memory[CPU::GetAddr_ZERO()].Write(CPU::Reg.A);
 			++CPU::Reg.PC;
 			return 3;
 		}break;
 		case STA_ZERO_X: {
-			Memory[CPU::GetAddr_ZERO_X()] = CPU::Reg.A;
+			Memory[CPU::GetAddr_ZERO_X()].Write(CPU::Reg.A);
 			++CPU::Reg.PC;
 			return 4;
 		}break;
 		case STA_ABS: {
-			Memory[CPU::GetAddr_ABS()] = CPU::Reg.A;
+			Memory[CPU::GetAddr_ABS()].Write(CPU::Reg.A);
 			++CPU::Reg.PC;
 			return 4;
 		}break;
 		case STA_ABS_X: {
-			Memory[CPU::GetAddr_ABS_X()] = CPU::Reg.A;
+			Memory[CPU::GetAddr_ABS_X()].Write(CPU::Reg.A);
 			++CPU::Reg.PC;
 			return 5;
 		}break;
 		case STA_ABS_Y: {
-			Memory[CPU::GetAddr_ABS_Y()] = CPU::Reg.A;
+			Memory[CPU::GetAddr_ABS_Y()].Write(CPU::Reg.A);
 			++CPU::Reg.PC;
 			return 5;
 		}break;
 		case STA_IND_X: {
-			Memory[CPU::GetAddr_IND_X()] = CPU::Reg.A;
+			Memory[CPU::GetAddr_IND_X()].Write(CPU::Reg.A);
 			++CPU::Reg.PC;
 			return 6;
 		}break;
 		case STA_IND_Y: {
-			Memory[CPU::GetAddr_IND_Y()] = CPU::Reg.A;
+			Memory[CPU::GetAddr_IND_Y()].Write(CPU::Reg.A);
 			++CPU::Reg.PC;
 			return 6;
 		}break;
@@ -970,17 +968,17 @@ namespace mos6502emu {
 
 			// STX
 		case STX_ZERO: {
-			Memory[CPU::GetAddr_ZERO()] = CPU::Reg.X;
+			Memory[CPU::GetAddr_ZERO()].Write(CPU::Reg.X);
 			++CPU::Reg.PC;
 			return 3;
 		}break;
 		case STX_ZERO_Y: {
-			Memory[CPU::GetAddr_ZERO_Y()] = CPU::Reg.X;
+			Memory[CPU::GetAddr_ZERO_Y()].Write(CPU::Reg.X);
 			++CPU::Reg.PC;
 			return 4;
 		}break;
 		case STX_ABS: {
-			Memory[CPU::GetAddr_ABS()] = CPU::Reg.X;
+			Memory[CPU::GetAddr_ABS()].Write(CPU::Reg.X);
 			++CPU::Reg.PC;
 			return 4;
 		}break;
@@ -988,17 +986,17 @@ namespace mos6502emu {
 
 			// STY
 		case STY_ZERO: {
-			Memory[CPU::GetAddr_ZERO()] = CPU::Reg.Y;
+			Memory[CPU::GetAddr_ZERO()].Write(CPU::Reg.Y);
 			++CPU::Reg.PC;
 			return 3;
 		}break;
 		case STY_ZERO_X: {
-			Memory[CPU::GetAddr_ZERO_X()] = CPU::Reg.Y;
+			Memory[CPU::GetAddr_ZERO_X()].Write(CPU::Reg.Y);
 			++CPU::Reg.PC;
 			return 4;
 		}break;
 		case STY_ABS: {
-			Memory[CPU::GetAddr_ABS()] = CPU::Reg.Y;
+			Memory[CPU::GetAddr_ABS()].Write(CPU::Reg.Y);
 			++CPU::Reg.PC;
 			return 4;
 		}break;

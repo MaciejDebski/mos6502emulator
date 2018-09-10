@@ -104,97 +104,49 @@ namespace mos6502emu {
 			return __IND_Y__(Memory[++Reg.PC]);
 		}
 
-
-		// WRITE
-		void Write_ACC(Fast8bit data) {
-			Reg.A = data;
-		}
-
-		void Write_ABS(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
-			Memory[__ABS__(addr_LSbyte, addr_MSbyte)] = data;
-		}
-
-		void Write_ABS_X(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
-			Memory[__ABS_X__(addr_LSbyte, addr_MSbyte)] = data;
-		}
-
-		void Write_ABS_Y(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
-			Memory[__ABS_Y__(addr_LSbyte, addr_MSbyte)] = data;
-		}
-
-		void Write_ZERO(Fast8bit data, Fast8bit addr_LSbyte) {
-			Memory[__ZERO__(addr_LSbyte)] = data;
-		}
-
-		void Write_ZERO_X(Fast8bit data, Fast8bit addr_LSbyte) {
-			Memory[__ZERO_X__(addr_LSbyte)] = data;
-		}
-
-		void Write_ZERO_Y(Fast8bit data, Fast8bit addr_LSbyte) {
-			Memory[__ZERO_Y__(addr_LSbyte)] = data;
-		}
-
-		void Write_REL(Fast8bit data, Fast8bit addr_LSbyte) {
-			Memory[__REL__(addr_LSbyte)] = data;
-		}
-
-		void Write_IND(Fast8bit data, Fast8bit addr_LSbyte, Fast8bit addr_MSbyte) {
-			Memory[__IND__(addr_LSbyte, addr_MSbyte)] = data;
-		}
-
-		void Write_IND_X(Fast8bit data, Fast8bit addr_LSbyte) {
-			Memory[__IND_X__(addr_LSbyte)] = data;
-		}
-
-		void Write_IND_Y(Fast8bit data, Fast8bit addr_LSbyte) {
-			Memory[__IND_Y__(addr_LSbyte)] = data;
-		}
-
-
-
-		// READ
-		Fast8bit Deref_PC() {
-			return Memory[++Reg.PC];
+		// DEREFERENCE
+		Fast8bit Deref_IMM() {
+			return Memory[++Reg.PC].Read();
 		}
 
 		Fast8bit Deref_ABS() {
-			return Memory[GetAddr_ABS()];
+			return Memory[GetAddr_ABS()].Read();
 		}
 
 		Fast8bit Deref_ABS_X() {
-			return Memory[GetAddr_ABS_X()];
+			return Memory[GetAddr_ABS_X()].Read();
 		}
 
 		Fast8bit Deref_ABS_Y() {
-			return Memory[GetAddr_ABS_Y()];
+			return Memory[GetAddr_ABS_Y()].Read();
 		}
 
 		Fast8bit Deref_ZERO() {
-			return Memory[GetAddr_ZERO()];
+			return Memory[GetAddr_ZERO()].Read();
 		}
 
 		Fast8bit Deref_ZERO_X() {
-			return Memory[GetAddr_ZERO_X()];
+			return Memory[GetAddr_ZERO_X()].Read();
 		}
 
 		Fast8bit Deref_ZERO_Y() {
-			return Memory[GetAddr_ZERO_Y()];
+			return Memory[GetAddr_ZERO_Y()].Read();
 		}
 		
 		Fast8bit Deref_REL() {
-			return Memory[GetAddr_REL()];
+			return Memory[GetAddr_REL()].Read();
 		}
 
 		Fast8bit Deref_IND() {
-			return Memory[GetAddr_IND()];
+			return Memory[GetAddr_IND()].Read();
 		}
 
 		Fast8bit Deref_IND_X() {
-			return Memory[GetAddr_IND_X()];
+			return Memory[GetAddr_IND_X()].Read();
 		}
 
 		Fast8bit Deref_IND_Y() {
-			return Memory[GetAddr_IND_Y()];
+			return Memory[GetAddr_IND_Y()].Read();
 		}
 
 
@@ -205,7 +157,7 @@ namespace mos6502emu {
 				return;
 			}
 
-			Memory[0x0100 + Reg.SP + 1] = data;
+			Memory[0x0100 + Reg.SP + 1].Write(data);
 		}
 
 		Fast8bit Stack_Pull() {
@@ -214,7 +166,7 @@ namespace mos6502emu {
 				// TODO: throw INT;
 			}
 
-			return Memory[0x0100 + Reg.SP];
+			return Memory[0x0100 + Reg.SP].Read();
 		}
 
 		bool Stack_IsEmpty() {

@@ -3,8 +3,7 @@
 #include "mos6502emu.h"
 
 namespace mos6502emu {
-	typedef Fast8bit MemoryCell;
-	extern MemoryCell Memory[65535];
+	extern class MemoryCell Memory[65535];
 
 	namespace CPU {
 		union StatusRegisters {
@@ -64,7 +63,7 @@ namespace mos6502emu {
 		void Write_IND_X(Fast8bit data, Fast8bit addr_LSbyte);
 		void Write_IND_Y(Fast8bit data, Fast8bit addr_LSbyte);
 
-		Fast8bit Deref_PC();
+		Fast8bit Deref_IMM();
 		Fast8bit Deref_ABS();
 		Fast8bit Deref_ABS_X();
 		Fast8bit Deref_ABS_Y();

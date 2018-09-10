@@ -17,6 +17,7 @@ namespace mos6502emu {
 
 		void SetDebugCallback(void(*callback)(const char* message, int count)) {
 			if (callback == nullptr) {
+				LogCallback = LogCallbackDummy;
 				return;
 			}
 			LogCallback = callback;

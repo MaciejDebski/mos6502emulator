@@ -9,20 +9,23 @@ namespace mos6502emu{
 	static float PPUAccDeltaTime;
 	static void(*PPUCallback)() = PPUCallbackDummy;
 
-	bool InsertROM(Fast8bit* rom, Word16bit size) {
-		if (size > 0xBFE0) {
-			LOG("\nError! -- InsertROM: rom size is too extensive.\n\n")
-				return false;
-		}
-		return InsertROM(0x4020, rom, size);
-	}
-
 	bool InsertROM(Word16bit PC, Fast8bit* rom, Word16bit size) {
 		if (rom == nullptr) {
 			return false;
 		}
-		memcpy(&Memory[PC], &rom[0], size * sizeof(Fast8bit));
+
+		for (int i = 0; i < size; ++i) {
+			Memory[PC + i].data = *(rom + i);
+		}
 		return true;
+	}
+
+	void SetOnReadCallback(Word16bit memory_address, Fast8bit(*OnReadCallback)(mos6502emu::MemoryCell* memory_cell)) {
+		mos6502emu::Memory[memory_address].SetCallback(OnReadCallback);
+	}
+
+	void SetOnWriteCallback(Word16bit memory_address, void(*OnWriteCallback)(mos6502emu::MemoryCell* memory_cell, Fast8bit value)) {
+		mos6502emu::Memory[memory_address].SetCallback(OnWriteCallback);
 	}
 
 	void Update(float deltatime) {
@@ -95,6 +98,25 @@ namespace mos6502emu{
 	void SetDebugCallback(void(*callback)(const char* message, int count)) {
 		debug::SetDebugCallback(callback);
 	}
+
+	
+	// Memory Cell
+	void MemoryCell::SetCallback(Fast8bit(*OnReadCallback)(MemoryCell* memory_cell)) {
+		if (OnReadCallback == nullptr) {
+			MemoryCell::OnReadCallback = &MemoryOnRead_Default;
+			return;
+		}
+		MemoryCell::OnReadCallback = OnReadCallback;
+	}
+
+	void MemoryCell::SetCallback(void(*OnWriteCallback)(MemoryCell* memory_cell, Fast8bit value)) {
+		if (OnWriteCallback == nullptr) {
+			MemoryCell::OnWriteCallback = &MemoryOnWrite_Default;
+			return;
+		}
+		MemoryCell::OnWriteCallback = OnWriteCallback;
+	}
+
 
 }
 
