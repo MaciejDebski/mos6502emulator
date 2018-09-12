@@ -22,9 +22,9 @@ namespace mos6502emu {
 //#define __IMM__(addr_LSbyte, addr_MSbyte) // Immediate doesn't deal with memory addresses.
 #define __REL__(addr_LSbyte) ((addr_LSbyte & 0x80) >> 7 == 1)? ((Reg.PC - negativeU2toUNS(addr_LSbyte) + 0x1) & 0xFFFF) : ((Reg.PC + (0xFF & (addr_LSbyte)) + 0x1) & 0xFFFF)
 //#define __IMP__(addr_LSbyte, addr_MSbyte) // Implicit doesn't deal with memory addresses.
-#define __IND__(addr_LSbyte, addr_MSbyte) (__ABS__(Memory[__ABS__((addr_LSbyte), (addr_MSbyte))], Memory[(__ABS__((addr_LSbyte), (addr_MSbyte)) + 0x1) & 0xFFFF]))
-#define __IND_X__(addr_LSbyte) (__ABS__(Memory[__ZERO__((addr_LSbyte) + Reg.X)], Memory[__ZERO__((addr_LSbyte) + Reg.X + 0x1)])) // Indirect X adds X register to 8 bit address, wrapping around if 0xFF is overstepped.
-#define __IND_Y__(addr_LSbyte) ( AddTestingPageBoundary( (__ABS__(Memory[__ZERO__((addr_LSbyte))], Memory[__ZERO__((addr_LSbyte) + 0x1)])), Reg.Y )) // Indirect Y adds Y register to full 16 bit address, wrapping around if 0xFFFF is overstepped.
+#define __IND__(addr_LSbyte, addr_MSbyte) (__ABS__(Memory[__ABS__((addr_LSbyte), (addr_MSbyte))].data, Memory[(__ABS__((addr_LSbyte), (addr_MSbyte)) + 0x1) & 0xFFFF].data))
+#define __IND_X__(addr_LSbyte) (__ABS__(Memory[__ZERO__((addr_LSbyte) + Reg.X)].data, Memory[__ZERO__((addr_LSbyte) + Reg.X + 0x1)].data)) // Indirect X adds X register to 8 bit address, wrapping around if 0xFF is overstepped.
+#define __IND_Y__(addr_LSbyte) ( AddTestingPageBoundary( (__ABS__(Memory[__ZERO__((addr_LSbyte))].data, Memory[__ZERO__((addr_LSbyte) + 0x1)].data)), Reg.Y )) // Indirect Y adds Y register to full 16 bit address, wrapping around if 0xFFFF is overstepped.
 
 		static void PowerUp() {
 			Memory[0x4017] = 0x0;
@@ -44,10 +44,9 @@ namespace mos6502emu {
 			return extra_cycle;
 		}
 
-		static Fast16bit AddTestingPageBoundary(Fast16bit A, Fast16bit B) {
-			Fast16bit result = (A + B) & 0xFFFF;
-			bPageBoundaryCrossed = (( result > 255));
-			return result;
+		static Word16bit AddTestingPageBoundary(Word16bit address, Word8bit LSB) {
+			bPageBoundaryCrossed = ( ((address & 0xFF) + LSB) > 255);
+			return address + LSB;
 		}
 
 
@@ -57,51 +56,51 @@ namespace mos6502emu {
 		}
 
 		Fast16bit GetAddr_ABS() {
-			Word8bit LSB = Memory[++Reg.PC];
-			Word8bit MSB = Memory[++Reg.PC];
+			Word8bit LSB = Memory[++Reg.PC].data;
+			Word8bit MSB = Memory[++Reg.PC].data;
 			return __ABS__(LSB, MSB);
 		}
 
 		Fast16bit GetAddr_ABS_X() {
-			Word8bit LSB = Memory[++Reg.PC];
-			Word8bit MSB = Memory[++Reg.PC];
+			Word8bit LSB = Memory[++Reg.PC].data;
+			Word8bit MSB = Memory[++Reg.PC].data;
 			return __ABS_X__(LSB, MSB);
 		}
 
 		Fast16bit GetAddr_ABS_Y() {
-			Word8bit LSB = Memory[++Reg.PC];
-			Word8bit MSB = Memory[++Reg.PC];
+			Word8bit LSB = Memory[++Reg.PC].data;
+			Word8bit MSB = Memory[++Reg.PC].data;
 			return __ABS_Y__(LSB, MSB);
 		}
 
 		Fast16bit GetAddr_ZERO() {
-			return __ZERO__(Memory[++Reg.PC]);
+			return __ZERO__(Memory[++Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_ZERO_X() {
-			return __ZERO_X__(Memory[++Reg.PC]);
+			return __ZERO_X__(Memory[++Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_ZERO_Y() {
-			return __ZERO_Y__(Memory[++Reg.PC]);
+			return __ZERO_Y__(Memory[++Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_REL() {
-			return __REL__(Memory[++Reg.PC]);
+			return __REL__(Memory[++Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_IND() {
-			Word8bit LSB = Memory[++Reg.PC];
-			Word8bit MSB = Memory[++Reg.PC];
+			Word8bit LSB = Memory[++Reg.PC].data;
+			Word8bit MSB = Memory[++Reg.PC].data;
 			return __IND__(LSB, MSB);
 		}
 
 		Fast16bit GetAddr_IND_X() {
-			return __IND_X__(Memory[++Reg.PC]);
+			return __IND_X__(Memory[++Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_IND_Y() {
-			return __IND_Y__(Memory[++Reg.PC]);
+			return __IND_Y__(Memory[++Reg.PC].data);
 		}
 
 		// DEREFERENCE
