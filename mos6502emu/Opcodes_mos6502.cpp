@@ -539,8 +539,9 @@ namespace mos6502emu {
 
 			// JSR
 		case JSR_ABS: {
-			CPU::Stack_Push(((CPU::Reg.PC + 3) & 0xFF00) >> 8); // Push PC High byte on stack
-			CPU::Stack_Push((CPU::Reg.PC + 3) & 0xFF);	// Push PC Low byte on stack
+			Word16bit pc = CPU::Reg.PC + 2;
+			CPU::Stack_Push((pc & 0xFF00) >> 8); // Push PC High byte on stack
+			CPU::Stack_Push(pc & 0xFF);	// Push PC Low byte on stack
 			CPU::Reg.PC = CPU::GetAddr_ABS();
 			return 6;
 		}break;
@@ -844,6 +845,7 @@ namespace mos6502emu {
 			Word8bit LSB = CPU::Stack_Pull();
 			Word8bit MSB = CPU::Stack_Pull();
 			CPU::Reg.PC = CPU::GetAddr_(LSB, MSB);
+			++CPU::Reg.PC;
 			return 6;
 		}break;
 

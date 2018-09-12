@@ -35,7 +35,7 @@ namespace mos6502emu {
 		}
 
 		CyclesUsed Tick() {
-			return ExecuteOpcode(Memory[Reg.PC]) + InterruptCheck();
+			return ExecuteOpcode(Memory[Reg.PC].data) + InterruptCheck();
 		}
 
 		bool PageBoundaryCrossed() {
@@ -157,7 +157,7 @@ namespace mos6502emu {
 				return;
 			}
 
-			Memory[0x0100 + Reg.SP + 1].Write(data);
+			Memory[0x0100 + Reg.SP + 1].data = data;
 		}
 
 		Fast8bit Stack_Pull() {
@@ -166,7 +166,7 @@ namespace mos6502emu {
 				// TODO: throw INT;
 			}
 
-			return Memory[0x0100 + Reg.SP].Read();
+			return Memory[0x0100 + Reg.SP].data;
 		}
 
 		bool Stack_IsEmpty() {
