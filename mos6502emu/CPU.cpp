@@ -74,19 +74,23 @@ namespace mos6502emu {
 		}
 
 		Fast16bit GetAddr_ZERO() {
-			return __ZERO__(Memory[++Reg.PC].data);
+			++Reg.PC;
+			return __ZERO__(Memory[Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_ZERO_X() {
-			return __ZERO_X__(Memory[++Reg.PC].data);
+			++Reg.PC;
+			return __ZERO_X__(Memory[Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_ZERO_Y() {
-			return __ZERO_Y__(Memory[++Reg.PC].data);
+			++Reg.PC;
+			return __ZERO_Y__(Memory[Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_REL() {
-			return __REL__(Memory[++Reg.PC].data);
+			++Reg.PC;
+			return __REL__(Memory[Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_IND() {
@@ -96,11 +100,13 @@ namespace mos6502emu {
 		}
 
 		Fast16bit GetAddr_IND_X() {
-			return __IND_X__(Memory[++Reg.PC].data);
+			++Reg.PC;
+			return __IND_X__(Memory[Reg.PC].data);
 		}
 
 		Fast16bit GetAddr_IND_Y() {
-			return __IND_Y__(Memory[++Reg.PC].data);
+			++Reg.PC;
+			return __IND_Y__(Memory[Reg.PC].data);
 		}
 
 		// DEREFERENCE

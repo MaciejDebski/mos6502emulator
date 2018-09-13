@@ -9,13 +9,13 @@ namespace mos6502emu{
 	static float PPUAccDeltaTime;
 	static void(*PPUCallback)() = PPUCallbackDummy;
 
-	bool InsertROM(Word16bit PC, Fast8bit* rom, Word16bit size) {
+	bool InsertROM(Word16bit address, Fast8bit* rom, Word16bit size) {
 		if (rom == nullptr) {
 			return false;
 		}
 
 		for (int i = 0; i < size; ++i) {
-			Memory[PC + i].data = *(rom + i);
+			Memory[address + i].data = *(rom + i);
 		}
 		return true;
 	}

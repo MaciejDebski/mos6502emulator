@@ -58,7 +58,22 @@ namespace mos6502emu {
 	}
 
 	CyclesUsed ExecuteOpcode(Fast8bit opcode) {
-		LOG("%hhX, ", opcode);
+		//LOG("%hX: %hhX,\n", CPU::Reg.PC, opcode);
+		LOG("%hX: %hhX,\n\nA: %hhX,\nX: %hhX,\nY: %hhX,\nSP: %hhX,\n\nP: %d%d%d%d%d%d%d%d\n\n",
+			CPU::Reg.PC, opcode,
+			CPU::Reg.A,
+			CPU::Reg.X,
+			CPU::Reg.Y,
+			CPU::Reg.SP,
+			CPU::Status.N,
+			CPU::Status.V,
+			CPU::Status.reserved,
+			CPU::Status.B,
+			CPU::Status.D,
+			CPU::Status.I,
+			CPU::Status.Z,
+			CPU::Status.C
+			);
 		switch (opcode) {
 
 			// ADC
@@ -203,14 +218,12 @@ namespace mos6502emu {
 			}
 			// branch true
 			CPU::Reg.PC = CPU::GetAddr_REL();
-			++CPU::Reg.PC;
 			return 3 + CPU::PageBoundaryCrossed();
 		}break;
 		case BMI: {
 			if (CPU::Status.N) {
 				// branch true
 				CPU::Reg.PC = CPU::GetAddr_REL();
-				++CPU::Reg.PC;
 				return 3 + CPU::PageBoundaryCrossed();
 			}
 			// branch false
@@ -225,14 +238,12 @@ namespace mos6502emu {
 			}
 			// branch true
 			CPU::Reg.PC = CPU::GetAddr_REL();
-			++CPU::Reg.PC;
 			return 3 + CPU::PageBoundaryCrossed();
 		}break;
 		case BVS: {
 			if (CPU::Status.V) {
 				// branch true
 				CPU::Reg.PC = CPU::GetAddr_REL();
-				++CPU::Reg.PC;
 				return 3 + CPU::PageBoundaryCrossed();
 			}
 			// branch false
@@ -247,14 +258,12 @@ namespace mos6502emu {
 			}
 			// branch true
 			CPU::Reg.PC = CPU::GetAddr_REL();
-			++CPU::Reg.PC;
 			return 3 + CPU::PageBoundaryCrossed();
 		}break;
 		case BCS: {
 			if (CPU::Status.C) {
 				// branch true
 				CPU::Reg.PC = CPU::GetAddr_REL();
-				++CPU::Reg.PC;
 				return 3 + CPU::PageBoundaryCrossed();
 			}
 			// branch false
@@ -269,14 +278,12 @@ namespace mos6502emu {
 			}
 			// branch true
 			CPU::Reg.PC = CPU::GetAddr_REL();
-			++CPU::Reg.PC;
 			return 3 + CPU::PageBoundaryCrossed();
 		}break;
 		case BEQ: {
 			if (CPU::Status.Z) {
 				// branch true
 				CPU::Reg.PC = CPU::GetAddr_REL();
-				++CPU::Reg.PC;
 				return 3 + CPU::PageBoundaryCrossed();
 			}
 			// branch false

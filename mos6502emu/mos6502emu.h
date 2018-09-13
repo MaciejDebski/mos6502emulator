@@ -25,7 +25,7 @@ namespace mos6502emu {
 	extern struct ProcessorRegisters Reg;
 
 	// Initialization
-	bool InsertROM(Word16bit PC, Fast8bit* rom, Word16bit size);
+	bool InsertROM(Word16bit address, Fast8bit* rom, Word16bit size);
 
 	// PIN setup
 	void SetOnReadCallback(Word16bit memory_address, Fast8bit(*OnReadCallback)(MemoryCell* memory_cell));
