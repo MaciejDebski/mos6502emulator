@@ -11,12 +11,11 @@ namespace mos6502emu {
 
 	static inline void ADC(Fast8bit data) {
 		Word8bit A = CPU::Reg.A;
-		Fast16bit sum = A + (data & 0xFF);
-		CPU::Reg.A = sum;
+		Fast16bit sum = A + (data & 0xFF) + CPU::Status.C;
+		CPU::Reg.A = sum & 0xFF;
 
 		CPU::Status.C = (sum > 255);
 		CPU::Status.V = ((A^sum)&(data^sum) & 0x80) >> 7;
-		
 		SetFlagsNZ(sum);
 	}
 
@@ -50,11 +49,11 @@ namespace mos6502emu {
 
 	static inline void SBC(Fast8bit data) {
 		Fast8bit A = CPU::Reg.A & 0xFF;
+
+		Fast8bit diff = (CPU::Reg.A = (A + ((~data) & 0xFF) + CPU::Status.C));
+
 		CPU::Status.C = (data <= A);
-
-		Fast8bit diff = (CPU::Reg.A = (A + ((~data) & 0xFF)));
-		CPU::Status.V = ((A^diff)&((~data)^diff) & 0x80) >> 7;
-
+		CPU::Status.V = ((A^diff)&(~data^diff) & 0x80) >> 7;
 		SetFlagsNZ(diff);
 	}
 
