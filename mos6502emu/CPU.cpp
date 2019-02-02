@@ -10,7 +10,6 @@ namespace mos6502emu {
 		StatusRegisters Status;
 		ProcessorRegisters Reg;
 
-		bool bIsNotInitialized = 1;
 		bool bPageBoundaryCrossed;
 
 #define __ABS__(addr_LSbyte, addr_MSbyte) ((0xFF00 & ((addr_MSbyte) << 8)) | (0x00FF & (addr_LSbyte)))
@@ -25,14 +24,6 @@ namespace mos6502emu {
 #define __IND__(addr_LSbyte, addr_MSbyte) (__ABS__(Memory[__ABS__((addr_LSbyte), (addr_MSbyte))].data, Memory[(__ABS__((addr_LSbyte), (addr_MSbyte)) + 0x1) & 0xFFFF].data))
 #define __IND_X__(addr_LSbyte) (__ABS__(Memory[__ZERO__((addr_LSbyte) + Reg.X)].data, Memory[__ZERO__((addr_LSbyte) + Reg.X + 0x1)].data)) // Indirect X adds X register to 8 bit address, wrapping around if 0xFF is overstepped.
 #define __IND_Y__(addr_LSbyte) ( AddTestingPageBoundary( (__ABS__(Memory[__ZERO__((addr_LSbyte))].data, Memory[__ZERO__((addr_LSbyte) + 0x1)].data)), Reg.Y )) // Indirect Y adds Y register to full 16 bit address, wrapping around if 0xFFFF is overstepped.
-
-		static void PowerUp() {
-			Memory[0x4017] = 0x0;
-			Memory[0x4015] = 0x0;
-			for (int i = 0; i < 0x10; ++i) {
-				Memory[0x4000 + i] = 0x0; // APU noise channels;
-			}
-		}
 
 		CyclesUsed Tick() {
 			return ExecuteOpcode(Memory[Reg.PC].data) + InterruptCheck();
@@ -159,6 +150,7 @@ namespace mos6502emu {
 			--Reg.SP;
 			if (Stack_IsFull()) {
 				// TODO: throw INT;
+				//LOG("::STACK_FULL::\n\n");
 				return;
 			}
 
@@ -169,6 +161,7 @@ namespace mos6502emu {
 			++Reg.SP;
 			if (Stack_IsEmpty()) {
 				// TODO: throw INT;
+				//LOG("::STACK_EMPTY::\n\n");
 			}
 
 			return Memory[0x0100 + Reg.SP].data;
@@ -180,12 +173,6 @@ namespace mos6502emu {
 
 		bool Stack_IsFull() {
 			return Reg.SP == 0xFF;
-		}
-
-		static void Stack_FakePush() {
-			// FakePush is a push executed in read mode, so no values are overwrited on the stack.
-			// It does not throw overflow as it is used mainly by reset sequence to initialize stack.
-			--Reg.SP;
 		}
 
 		static void Interrupt(Fast16bit VectorLow, Fast16bit VectorHigh, Fast8bit flag_B) {
@@ -227,16 +214,8 @@ namespace mos6502emu {
 		}
 
 		CyclesUsed RESET() {
-			if (bIsNotInitialized) {
-				PowerUp();
-				bIsNotInitialized = 0;
-			}
-			Stack_FakePush();	// Only in the NMOS version of 6502?
-			Stack_FakePush();
-			Stack_FakePush();
 			Reg.PC = __ABS__(Memory[0xFFFC], Memory[0xFFFD]);
 			Status.I = 1;
-			Memory[0x4015] = 0x0; // NES version of mos6502 silencing APU at reset.
 			return 7;
 		}
 

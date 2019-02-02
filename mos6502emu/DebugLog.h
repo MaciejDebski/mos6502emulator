@@ -14,7 +14,10 @@ namespace mos6502emu {
 		void SendLog();
 	}
 
-#define LOG(x, ...) debug::Log(x, __VA_ARGS__);
+
+//#define LOG(x, ...)
+//#define LOG(x, ...) debug::Log(x, __VA_ARGS__);
+
 
 }
 

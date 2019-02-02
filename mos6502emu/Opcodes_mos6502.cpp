@@ -11,8 +11,9 @@ namespace mos6502emu {
 
 	static inline void ADC(Fast8bit data) {
 		Word8bit A = CPU::Reg.A;
-		Fast16bit sum = (CPU::Reg.A = (A + (data & 0xFF)));
-		
+		Fast16bit sum = A + (data & 0xFF);
+		CPU::Reg.A = sum;
+
 		CPU::Status.C = (sum > 255);
 		CPU::Status.V = ((A^sum)&(data^sum) & 0x80) >> 7;
 		
@@ -59,7 +60,7 @@ namespace mos6502emu {
 
 	CyclesUsed ExecuteOpcode(Fast8bit opcode) {
 		//LOG("%hX: %hhX,\n", CPU::Reg.PC, opcode);
-		LOG("%hX: %hhX,\n\nA: %hhX,\nX: %hhX,\nY: %hhX,\nSP: %hhX,\n\nP: %d%d%d%d%d%d%d%d\n\n",
+		/*LOG("%hX: %hhX,\n\nA: %hhX,\nX: %hhX,\nY: %hhX,\nSP: %hhX,\n\nP: %d%d%d%d%d%d%d%d\n\n",
 			CPU::Reg.PC, opcode,
 			CPU::Reg.A,
 			CPU::Reg.X,
@@ -73,7 +74,7 @@ namespace mos6502emu {
 			CPU::Status.I,
 			CPU::Status.Z,
 			CPU::Status.C
-			);
+			); */
 		switch (opcode) {
 
 			// ADC
@@ -1013,7 +1014,7 @@ namespace mos6502emu {
 
 		default: {
 			// illegal instructions are not supported in this version.
-			LOG("(Error:%hhX), ", opcode);
+			//LOG("(Error:%hhX), ", opcode);
 			++CPU::Reg.PC;
 			return 1;
 		}break;

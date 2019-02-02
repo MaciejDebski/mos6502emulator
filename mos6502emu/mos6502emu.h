@@ -20,6 +20,8 @@ namespace mos6502emu {
 	typedef int_fast8_t U2Word8bit;
 	class MemoryCell;
 
+	//constexpr std :: size_t memorySize = 0xFFFFu + 1u;
+	//extern std :: array<MemoryCell, meomorySize> Memory;
 	extern MemoryCell Memory[0xFFFF];
 	extern union StatusRegisters Status;
 	extern struct ProcessorRegisters Reg;

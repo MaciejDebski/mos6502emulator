@@ -18,7 +18,7 @@ namespace mos6502emu {
 				volatile Fast8bit N : 1;
 			};
 			volatile Fast8bit all_flags;
-			StatusRegisters() : all_flags(0x34) {};
+			StatusRegisters() : all_flags(0x30) {};
 		};
 
 		extern StatusRegisters Status;
@@ -30,7 +30,7 @@ namespace mos6502emu {
 			volatile Fast8bit Y;
 			volatile Word8bit SP;
 			volatile union StatusRegisters* P = &Status;
-			ProcessorRegisters() : PC(InitialPC), A(0x0), X(0x0), Y(0x0), SP(0x00) {};
+			ProcessorRegisters() : PC(InitialPC), A(0x0), X(0x0), Y(0x0), SP(0xFF) {};
 		};
 
 		extern ProcessorRegisters Reg;
