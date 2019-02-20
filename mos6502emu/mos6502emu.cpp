@@ -81,7 +81,7 @@ namespace mos6502emu{
 	}
 
 	void IRQ() {
-		CPU::bIRQ = !CPU::Status.I;
+		CPU::bIRQ = !Status.I;
 	}
 
 	void ClearDeltatimeBuffer() {
@@ -90,7 +90,7 @@ namespace mos6502emu{
 	}
 
 	void SetPC(Word16bit newPC) {
-		CPU::Reg.PC = newPC;
+		Reg.PC = newPC;
 	}
 
 	void PPUCallbackDummy() {};

@@ -4,12 +4,12 @@
 #include "Opcodes_mos6502.h"
 
 namespace mos6502emu {
-	MemoryCell Memory[65535];
+	MemoryCell Memory[0xFFFF + 1];
+	StatusRegisters Status;
+	ProcessorRegisters Reg;
+
 
 	namespace CPU {
-		StatusRegisters Status;
-		ProcessorRegisters Reg;
-
 		bool bPageBoundaryCrossed;
 
 #define __ABS__(addr_LSbyte, addr_MSbyte) ((0xFF00 & ((addr_MSbyte) << 8)) | (0x00FF & (addr_LSbyte)))
@@ -149,9 +149,7 @@ namespace mos6502emu {
 		void Stack_Push(Fast8bit data) {
 			--Reg.SP;
 			if (Stack_IsFull()) {
-				// TODO: throw INT;
 				//LOG("::STACK_FULL::\n\n");
-				return;
 			}
 
 			Memory[0x0100 + Reg.SP + 1].data = data;
@@ -160,7 +158,6 @@ namespace mos6502emu {
 		Fast8bit Stack_Pull() {
 			++Reg.SP;
 			if (Stack_IsEmpty()) {
-				// TODO: throw INT;
 				//LOG("::STACK_EMPTY::\n\n");
 			}
 

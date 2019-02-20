@@ -22,7 +22,7 @@ namespace mos6502emu {
 
 	//constexpr std :: size_t memorySize = 0xFFFFu + 1u;
 	//extern std :: array<MemoryCell, meomorySize> Memory;
-	extern MemoryCell Memory[0xFFFF];
+	extern MemoryCell Memory[0xFFFF + 1];
 	extern union StatusRegisters Status;
 	extern struct ProcessorRegisters Reg;
 
@@ -172,6 +172,36 @@ namespace mos6502emu {
 		Fast8bit(*OnReadCallback)(MemoryCell* memory_cell) = &MemoryOnRead_Default;
 		void(*OnWriteCallback)(MemoryCell* memory_cell, Fast8bit value) = &MemoryOnWrite_Default;
 	};
+
+
+	union StatusRegisters {
+		struct {
+			volatile Fast8bit C : 1;
+			volatile Fast8bit Z : 1;
+			volatile Fast8bit I : 1;
+			volatile Fast8bit D : 1; // ignored on NES's mos6502.
+			volatile Fast8bit B : 1;
+			volatile Fast8bit reserved : 1;
+			volatile Fast8bit V : 1;
+			volatile Fast8bit N : 1;
+		};
+		volatile Fast8bit all_flags;
+		StatusRegisters() : all_flags(0x30) {};
+	};
+
+	extern StatusRegisters Status;
+
+	struct ProcessorRegisters {
+		volatile Word16bit PC;
+		volatile Fast8bit A;
+		volatile Fast8bit X;
+		volatile Fast8bit Y;
+		volatile Word8bit SP;
+		volatile union StatusRegisters* P = &Status;
+		ProcessorRegisters() : PC(InitialPC), A(0x0), X(0x0), Y(0x0), SP(0xFF) {};
+	};
+
+	extern ProcessorRegisters Reg;
 
 
 
