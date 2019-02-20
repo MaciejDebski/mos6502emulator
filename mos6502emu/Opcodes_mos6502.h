@@ -185,7 +185,7 @@ namespace mos6502emu {
 		STY_ABS = 0x8C
 	};
 
-	CyclesUsed ExecuteOpcode(Fast8bit opcode);
+	CyclesUsed ExecuteOpcode(Word8bit opcode);
 
 }
 

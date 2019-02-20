@@ -9,7 +9,7 @@ namespace mos6502emu{
 	static float PPUAccDeltaTime;
 	static void(*PPUCallback)() = PPUCallbackDummy;
 
-	bool InsertROM(Word16bit address, Fast8bit* rom, Word16bit size) {
+	bool InsertROM(Word16bit address, Word8bit* rom, Word16bit size) {
 		if (rom == nullptr) {
 			return false;
 		}
@@ -20,11 +20,11 @@ namespace mos6502emu{
 		return true;
 	}
 
-	void SetOnReadCallback(Word16bit memory_address, Fast8bit(*OnReadCallback)(mos6502emu::MemoryCell* memory_cell)) {
+	void SetOnReadCallback(Word16bit memory_address, Word8bit(*OnReadCallback)(mos6502emu::MemoryCell* memory_cell)) {
 		mos6502emu::Memory[memory_address].SetCallback(OnReadCallback);
 	}
 
-	void SetOnWriteCallback(Word16bit memory_address, void(*OnWriteCallback)(mos6502emu::MemoryCell* memory_cell, Fast8bit value)) {
+	void SetOnWriteCallback(Word16bit memory_address, void(*OnWriteCallback)(mos6502emu::MemoryCell* memory_cell, Word8bit value)) {
 		mos6502emu::Memory[memory_address].SetCallback(OnWriteCallback);
 	}
 
@@ -101,7 +101,7 @@ namespace mos6502emu{
 
 	
 	// Memory Cell
-	void MemoryCell::SetCallback(Fast8bit(*OnReadCallback)(MemoryCell* memory_cell)) {
+	void MemoryCell::SetCallback(Word8bit(*OnReadCallback)(MemoryCell* memory_cell)) {
 		if (OnReadCallback == nullptr) {
 			MemoryCell::OnReadCallback = &MemoryOnRead_Default;
 			return;
@@ -109,7 +109,7 @@ namespace mos6502emu{
 		MemoryCell::OnReadCallback = OnReadCallback;
 	}
 
-	void MemoryCell::SetCallback(void(*OnWriteCallback)(MemoryCell* memory_cell, Fast8bit value)) {
+	void MemoryCell::SetCallback(void(*OnWriteCallback)(MemoryCell* memory_cell, Word8bit value)) {
 		if (OnWriteCallback == nullptr) {
 			MemoryCell::OnWriteCallback = &MemoryOnWrite_Default;
 			return;

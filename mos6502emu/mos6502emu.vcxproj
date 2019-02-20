@@ -162,6 +162,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Commons.cpp" />
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="DebugLog.cpp" />
     <ClCompile Include="mos6502emu.cpp" />

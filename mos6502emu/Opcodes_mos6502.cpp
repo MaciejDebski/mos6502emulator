@@ -4,60 +4,60 @@
 #include "CPU.h"
 
 namespace mos6502emu {
-	static inline void SetFlagsNZ(Fast8bit result) {
+	static inline void SetFlagsNZ(Word8bit result) {
 		Status.N = (result & 0x80) >> 7;
 		Status.Z = ((result & 0xFF) == 0);
 	}
 
-	static inline void ADC(Fast8bit data) {
+	static inline void ADC(Word8bit data) {
 		Word8bit A = Reg.A;
-		Fast16bit sum = A + (data & 0xFF) + Status.C;
+		Word16bit sum = A + (data & 0xFF) + Status.C;
 		Reg.A = sum & 0xFF;
 
 		Status.C = (sum > 255);
 		Status.V = ((A^sum)&(data^sum) & 0x80) >> 7;
-		SetFlagsNZ(sum);
+		SetFlagsNZ((Word8bit)sum);
 	}
 
 	static inline void ASL(Word16bit address) {
-		Fast8bit value = Memory[address].Read();
+		Word8bit value = Memory[address].Read();
 		Status.C = (value & 0x80) >> 7;
 		SetFlagsNZ(value <<= 1);
 		Memory[address].Write(value);
 	}
 
 	static inline void LSR(Word16bit address) {
-		Fast8bit value = Memory[address].Read();
+		Word8bit value = Memory[address].Read();
 		Status.C = (value & 0x1);
 		SetFlagsNZ(value >>= 1);
 		Memory[address].Write(value);
 	}
 
 	static inline void ROL(Word16bit address) {
-		Fast8bit c = Status.C;
-		Fast8bit value = Memory[address].Read();
+		Word8bit c = Status.C;
+		Word8bit value = Memory[address].Read();
 		Status.C = value & 0x80 >> 7;
 		Memory[address].Write(PASTE_BIT(value << 1, 0, c));
 	}
 
 	static inline void ROR(Word16bit address) {
-		Fast8bit c = Status.C;
-		Fast8bit value = Memory[address].Read();
+		Word8bit c = Status.C;
+		Word8bit value = Memory[address].Read();
 		Status.C = value; // no need of clearing MSBits (Memory[address] & 0x01), the expression needs LSB in this case.
 		Memory[address].Write(PASTE_BIT(value >> 1, 7, c));
 	}
 
-	static inline void SBC(Fast8bit data) {
-		Fast8bit A = Reg.A & 0xFF;
+	static inline void SBC(Word8bit data) {
+		Word8bit A = Reg.A & 0xFF;
 
-		Fast8bit diff = (Reg.A = (A + ((~data) & 0xFF) + Status.C));
+		Word8bit diff = (Reg.A = (A + ((~data) & 0xFF) + Status.C));
 
 		Status.C = (data <= A);
 		Status.V = ((A^diff)&(~data^diff) & 0x80) >> 7;
 		SetFlagsNZ(diff);
 	}
 
-	CyclesUsed ExecuteOpcode(Fast8bit opcode) {
+	CyclesUsed ExecuteOpcode(Word8bit opcode) {
 		//LOG("%hX: %hhX,\n", Reg.PC, opcode);
 		/*LOG("%hX: %hhX,\n\nA: %hhX,\nX: %hhX,\nY: %hhX,\nSP: %hhX,\n\nP: %d%d%d%d%d%d%d%d\n\n",
 			Reg.PC, opcode,
@@ -193,14 +193,14 @@ namespace mos6502emu {
 
 			// BIT
 		case BIT_ZERO: {
-			Fast8bit result = Reg.A & CPU::Deref_ZERO();
+			Word8bit result = Reg.A & CPU::Deref_ZERO();
 			SetFlagsNZ(result);
 			Status.V = (result & 0x40) >> 6;
 			++Reg.PC;
 			return 3;
 		}break;
 		case BIT_ABS: {
-			Fast8bit result = Reg.A & CPU::Deref_ABS();
+			Word8bit result = Reg.A & CPU::Deref_ABS();
 			SetFlagsNZ(result);
 			Status.V = (result & 0x40) >> 6;
 			++Reg.PC;
@@ -300,56 +300,56 @@ namespace mos6502emu {
 
 			// CMP
 		case CMP_IMM: {
-			Fast8bit M = CPU::Deref_IMM();
+			Word8bit M = CPU::Deref_IMM();
 			SetFlagsNZ(Reg.A - M);
 			Status.C = Reg.A >= M;
 			++Reg.PC;
 			return 2;
 		}break;
 		case CMP_ZERO: {
-			Fast8bit M = CPU::Deref_ZERO();
+			Word8bit M = CPU::Deref_ZERO();
 			SetFlagsNZ(Reg.A - M);
 			Status.C = Reg.A >= M;
 			++Reg.PC;
 			return 3;
 		}break;
 		case CMP_ZERO_X: {
-			Fast8bit M = CPU::Deref_ZERO_X();
+			Word8bit M = CPU::Deref_ZERO_X();
 			SetFlagsNZ(Reg.A - M);
 			Status.C = Reg.A >= M;
 			++Reg.PC;
 			return 4;
 		}break;
 		case CMP_ABS: {
-			Fast8bit M = CPU::Deref_ABS();
+			Word8bit M = CPU::Deref_ABS();
 			SetFlagsNZ(Reg.A - M);
 			Status.C = Reg.A >= M;
 			++Reg.PC;
 			return 4;
 		}break;
 		case CMP_ABS_X: {
-			Fast8bit M = CPU::Deref_ABS_X();
+			Word8bit M = CPU::Deref_ABS_X();
 			SetFlagsNZ(Reg.A - M);
 			Status.C = Reg.A >= M;
 			++Reg.PC;
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case CMP_ABS_Y: {
-			Fast8bit M = CPU::Deref_ABS_Y();
+			Word8bit M = CPU::Deref_ABS_Y();
 			SetFlagsNZ(Reg.A - M);
 			Status.C = Reg.A >= M;
 			++Reg.PC;
 			return 4 + CPU::PageBoundaryCrossed();
 		}break;
 		case CMP_IND_X: {
-			Fast8bit M = CPU::Deref_IND_X();
+			Word8bit M = CPU::Deref_IND_X();
 			SetFlagsNZ(Reg.A - M);
 			Status.C = Reg.A >= M;
 			++Reg.PC;
 			return 6;
 		}break;
 		case CMP_IND_Y: {
-			Fast8bit M = CPU::Deref_IND_Y();
+			Word8bit M = CPU::Deref_IND_Y();
 			SetFlagsNZ(Reg.A - M);
 			Status.C = Reg.A >= M;
 			++Reg.PC;
@@ -359,21 +359,21 @@ namespace mos6502emu {
 
 			// CPX
 		case CPX_IMM: {
-			Fast8bit M = CPU::Deref_IMM();
+			Word8bit M = CPU::Deref_IMM();
 			SetFlagsNZ(Reg.X - M);
 			Status.C = Reg.X >= M;
 			++Reg.PC;
 			return 2;
 		}break;
 		case CPX_ZERO: {
-			Fast8bit M = CPU::Deref_ZERO();
+			Word8bit M = CPU::Deref_ZERO();
 			SetFlagsNZ(Reg.X - M);
 			Status.C = Reg.X >= M;
 			++Reg.PC;
 			return 3;
 		}break;
 		case CPX_ABS: {
-			Fast8bit M = CPU::Deref_ABS();
+			Word8bit M = CPU::Deref_ABS();
 			SetFlagsNZ(Reg.X - M);
 			Status.C = Reg.X >= M;
 			++Reg.PC;
@@ -384,21 +384,21 @@ namespace mos6502emu {
 
 			// CPY
 		case CPY_IMM: {
-			Fast8bit M = CPU::Deref_IMM();
+			Word8bit M = CPU::Deref_IMM();
 			SetFlagsNZ(Reg.Y - M);
 			Status.C = Reg.Y >= M;
 			++Reg.PC;
 			return 2;
 		}break;
 		case CPY_ZERO: {
-			Fast8bit M = CPU::Deref_ZERO();
+			Word8bit M = CPU::Deref_ZERO();
 			SetFlagsNZ(Reg.Y - M);
 			Status.C = Reg.Y >= M;
 			++Reg.PC;
 			return 3;
 		}break;
 		case CPY_ABS: {
-			Fast8bit M = CPU::Deref_ABS();
+			Word8bit M = CPU::Deref_ABS();
 			SetFlagsNZ(Reg.Y - M);
 			Status.C = Reg.Y >= M;
 			++Reg.PC;
@@ -777,7 +777,7 @@ namespace mos6502emu {
 
 			// ROL
 		case ROL_ACC: {
-			Fast8bit c = Status.C;
+			Word8bit c = Status.C;
 			Status.C = Reg.A & 0x80 >> 7;
 			Reg.A = Reg.A << 1;
 			PASTE_BIT(Reg.A, 0, c);
@@ -808,7 +808,7 @@ namespace mos6502emu {
 
 			// ROR
 		case ROR_ACC: {
-			Fast8bit c = Status.C;
+			Word8bit c = Status.C;
 			Status.C = Reg.A & 0x1;
 			Reg.A = Reg.A >> 1;
 			PASTE_BIT(Reg.A, 7, c);
@@ -842,7 +842,7 @@ namespace mos6502emu {
 			Status.all_flags = CPU::Stack_Pull();
 			Word8bit LSB = CPU::Stack_Pull();
 			Word8bit MSB = CPU::Stack_Pull();
-			Reg.PC = CPU::GetAddr_(LSB, MSB);
+			Reg.PC = CPU::LinkBytes(LSB, MSB);
 			return 6;
 		}break;
 
@@ -851,7 +851,7 @@ namespace mos6502emu {
 		case RTS: {
 			Word8bit LSB = CPU::Stack_Pull();
 			Word8bit MSB = CPU::Stack_Pull();
-			Reg.PC = CPU::GetAddr_(LSB, MSB);
+			Reg.PC = CPU::LinkBytes(LSB, MSB);
 			++Reg.PC;
 			return 6;
 		}break;

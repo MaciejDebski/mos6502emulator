@@ -12,32 +12,32 @@ namespace mos6502emu {
 
 		bool PageBoundaryCrossed();
 
-		Fast16bit GetAddr_(Fast8bit LSbyte, Fast8bit MSbyte);
-		Fast16bit GetAddr_ABS();
-		Fast16bit GetAddr_ABS_X();
-		Fast16bit GetAddr_ABS_Y();
-		Fast16bit GetAddr_ZERO();
-		Fast16bit GetAddr_ZERO_X();
-		Fast16bit GetAddr_ZERO_Y();
-		Fast16bit GetAddr_REL();
-		Fast16bit GetAddr_IND();
-		Fast16bit GetAddr_IND_X();
-		Fast16bit GetAddr_IND_Y();
+		Word16bit LinkBytes(Word8bit LSByte, Word8bit MSByte);
+		Word16bit GetAddr_ABS();
+		Word16bit GetAddr_ABS_X();
+		Word16bit GetAddr_ABS_Y();
+		Word8bit GetAddr_ZERO();
+		Word8bit GetAddr_ZERO_X();
+		Word8bit GetAddr_ZERO_Y();
+		Word16bit GetAddr_REL();
+		Word16bit GetAddr_IND();
+		Word16bit GetAddr_IND_X();
+		Word16bit GetAddr_IND_Y();
 
-		Fast8bit Deref_IMM();
-		Fast8bit Deref_ABS();
-		Fast8bit Deref_ABS_X();
-		Fast8bit Deref_ABS_Y();
-		Fast8bit Deref_ZERO();
-		Fast8bit Deref_ZERO_X();
-		Fast8bit Deref_ZERO_Y();
-		Fast8bit Deref_REL();
-		Fast8bit Deref_IND();
-		Fast8bit Deref_IND_X();
-		Fast8bit Deref_IND_Y();
+		Word8bit Deref_IMM();
+		Word8bit Deref_ABS();
+		Word8bit Deref_ABS_X();
+		Word8bit Deref_ABS_Y();
+		Word8bit Deref_ZERO();
+		Word8bit Deref_ZERO_X();
+		Word8bit Deref_ZERO_Y();
+		Word8bit Deref_REL();
+		Word8bit Deref_IND();
+		Word8bit Deref_IND_X();
+		Word8bit Deref_IND_Y();
 
-		void Stack_Push(Fast8bit data);
-		Fast8bit Stack_Pull();
+		void Stack_Push(Word8bit data);
+		Word8bit Stack_Pull();
 		bool Stack_IsEmpty();
 		bool Stack_IsFull();
 
