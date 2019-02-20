@@ -31,9 +31,8 @@ namespace mos6502emu {
 	void SetOnWriteCallback(Word16bit memory_address, void(*OnWriteCallback)(MemoryCell* memory_cell, Word8bit value));
 
 	// Const parameters
-	static const float CPUClockSpeedHZ = 21477272;
-	static const float CPUCycleLength = 1 / (CPUClockSpeedHZ / 12);
-	static const float PPUCycleLength = 1 / (CPUClockSpeedHZ / 4);
+	static const float CPUClockSpeedHZ = 1'000'000;
+	static const float CPUCycleLength = 1 / CPUClockSpeedHZ;
 	static const Word16bit InitialPC = 0x0;
 
 	// Update
@@ -42,11 +41,6 @@ namespace mos6502emu {
 	// CPU
 	void RealCPUTick(float deltatime);
 	CyclesUsed TickCPU();
-
-	// PPU
-	void RealPPUTick(float deltatime);
-	void TickPPU();
-	void SetPPUCallback(void(*callback)());
 
 	// Controls
 	void Reset();

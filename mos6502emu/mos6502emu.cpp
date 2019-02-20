@@ -30,7 +30,6 @@ namespace mos6502emu{
 
 	void Update(float deltatime) {
 		RealCPUTick(deltatime);
-		RealPPUTick(deltatime);
 	}
 
 	void RealCPUTick(float deltatime) {
@@ -49,27 +48,6 @@ namespace mos6502emu{
 		debug::bBufferLog = false;
 		return CPU::Tick();
 	}
-
-	void RealPPUTick(float deltatime) {
-		PPUAccDeltaTime += deltatime;
-		while (PPUAccDeltaTime >= PPUCycleLength) {
-			TickPPU();
-			PPUAccDeltaTime -= PPUCycleLength;
-		}
-	}
-
-	void TickPPU() {
-		PPUCallback();
-	}
-
-	void SetPPUCallback(void(*callback)()) {
-		if (callback == nullptr) {
-			return;
-		}
-		PPUCallback = callback;
-	}
-
-
 
 	void Reset() {
 		PPUAccDeltaTime = 0;
