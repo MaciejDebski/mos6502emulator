@@ -22,9 +22,9 @@ namespace mos6502emu {
 			return extra_cycle;
 		}
 
-		static Word16bit TestPageBoundary(Word16bit address, Word16bit LSByte) {
-			bPageBoundaryCrossed = (((address & 0xFF) + LSByte) > 255);
-			return address + LSByte;
+		static Word16bit AddBytes_TestPageBoundary(Word16bit address, Word16bit register_value) {
+			bPageBoundaryCrossed = (((address & 0xFF) + register_value) > 255);
+			return address + register_value;
 		}
 
 		// GET ADDRESS
@@ -44,13 +44,13 @@ namespace mos6502emu {
 
 		Word16bit GetAddr_ABS_X() {
 			Word16bit addr = GetAddr_ABS();
-			TestPageBoundary(addr, Reg.X);
+			AddBytes_TestPageBoundary(addr, Reg.X);
 			return addr + Reg.X;
 		}
 
 		Word16bit GetAddr_ABS_Y() {
 			Word16bit addr = GetAddr_ABS();
-			TestPageBoundary(addr, Reg.Y);
+			AddBytes_TestPageBoundary(addr, Reg.Y);
 			return addr + Reg.Y;
 		}
 
@@ -69,7 +69,7 @@ namespace mos6502emu {
 		Word16bit GetAddr_REL() {
 			// Relative address mode is sensitive to sign, its scope is from -128, to 127
 			Word8bit displacement = ReadNextByte();
-			return TestPageBoundary(Reg.PC, mos6502emu::To16Bit(displacement)) + 0x1;
+			return AddBytes_TestPageBoundary(Reg.PC, mos6502emu::To16Bit(displacement)) + 0x1;
 		}
 
 		Word16bit GetAddr_IND() {
