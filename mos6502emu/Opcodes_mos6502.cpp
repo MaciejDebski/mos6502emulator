@@ -6,12 +6,12 @@
 namespace mos6502emu {
 	static inline void SetFlagsNZ(Word8bit result) {
 		Status.N = (result & 0x80) >> 7;
-		Status.Z = ((result & 0xFF) == 0);
+		Status.Z = (result == 0);
 	}
 
 	static inline void ADC(Word8bit data) {
 		Word8bit A = Reg.A;
-		Word16bit sum = A + (data & 0xFF) + Status.C;
+		Word16bit sum = A + data + Status.C;
 		Reg.A = sum & 0xFF;
 
 		Status.C = (sum > 255);
@@ -29,7 +29,7 @@ namespace mos6502emu {
 	static inline void LSR(Word16bit address) {
 		Word8bit value = Memory[address].Read();
 		Status.C = (value & 0x1);
-		SetFlagsNZ(value >>= 1);
+		SetFlagsNZ((value >>= 1) &= 0x7F);
 		Memory[address].Write(value);
 	}
 
@@ -48,7 +48,7 @@ namespace mos6502emu {
 	}
 
 	static inline void SBC(Word8bit data) {
-		Word8bit A = Reg.A & 0xFF;
+		Word8bit A = Reg.A;
 
 		Word8bit diff = (Reg.A = (A + ((~data) & 0xFF) + Status.C));
 
