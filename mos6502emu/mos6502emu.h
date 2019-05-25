@@ -74,31 +74,31 @@ namespace mos6502emu {
 			return *this;
 		}
 
-		int operator&(const MemoryCell& right) {
+		int operator&(const MemoryCell& right) const {
 			return data & right.data;
 		}
 
-		int operator&(const int& right) {
+		int operator&(const int& right) const {
 			return data & right;
 		}
 
-		int operator+(const MemoryCell& right) {
+		int operator+(const MemoryCell& right) const {
 			return data + right.data;
 		}
 
-		int operator+(const int& right) {
+		int operator+(const int& right) const {
 			return data + right;
 		}
 
-		int operator+(const Word8bit right) {
+		int operator+(const Word8bit right) const {
 			return data + right;
 		}
 
-		int operator<<(const int& shift) {
+		int operator<<(const int& shift) const {
 			return data << shift;
 		}
 
-		int operator>>(const int& shift) {
+		int operator>>(const int& shift) const {
 			return data >> shift;
 		}
 
@@ -129,7 +129,7 @@ namespace mos6502emu {
 			return std::move(temp);
 		}
 
-		operator int() {
+		operator int() const {
 			return data;
 		}
 
