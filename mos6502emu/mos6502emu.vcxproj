@@ -158,6 +158,7 @@
     <ClInclude Include="DebugLog.h" />
     <ClInclude Include="mos6502emu.h" />
     <ClInclude Include="Opcodes_mos6502.h" />
+    <ClInclude Include="RingBuffer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
