@@ -29,13 +29,9 @@ namespace mos6502emu{
 	}
 
 	void Update(float deltatime) {
-		RealCPUTick(deltatime);
-	}
-
-	void RealCPUTick(float deltatime) {
 		debug::bBufferLog = true;
 		CPUAccDeltaTime += deltatime;
-		while(CPUAccDeltaTime >= CPUCycleLength) {
+		while (CPUAccDeltaTime >= CPUCycleLength) {
 
 			float cycles = CPU::Tick() * CPUCycleLength;
 			CPUAccDeltaTime -= (cycles);

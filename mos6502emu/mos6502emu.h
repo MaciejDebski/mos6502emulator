@@ -35,14 +35,10 @@ namespace mos6502emu {
 	static const float CPUCycleLength = 1 / CPUClockSpeedHZ;
 	static const Word16bit InitialPC = 0x0;
 
-	// Update
+	// CPU Controls
 	void Update(float deltatime);
-
-	// CPU
-	void RealCPUTick(float deltatime);
 	CyclesUsed TickCPU();
 
-	// Controls
 	void Reset();
 	void NMI();
 	void IRQ();
