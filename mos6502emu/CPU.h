@@ -3,9 +3,20 @@
 #include "mos6502emu.h"
 
 namespace mos6502emu {
-	extern class MemoryCell Memory[0xFFFF + 1];
+	class MemoryBlock {
+	public:
+		MemoryCell& operator[](const int index) {
+			DebugLog.Log(DebugInfo::ECommand::NONE, index);
+			return Block[index];
+		};
+
+	private:
+		MemoryCell Block[0xFFFF + 1];
+	};
+	extern MemoryBlock Memory;
 	extern StatusRegisters Status;
 	extern ProcessorRegisters Reg;
+	extern Debug DebugLog;
 
 	namespace CPU {
 		CyclesUsed Tick();

@@ -4,10 +4,10 @@
 #include "Opcodes_mos6502.h"
 
 namespace mos6502emu {
-	MemoryCell Memory[0xFFFF + 1];
+	MemoryBlock Memory;
 	StatusRegisters Status;
 	ProcessorRegisters Reg;
-
+	Debug DebugLog;
 
 	namespace CPU {
 		bool bPageBoundaryCrossed;

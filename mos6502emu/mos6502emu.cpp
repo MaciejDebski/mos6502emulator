@@ -29,7 +29,6 @@ namespace mos6502emu{
 	}
 
 	void Update(float deltatime) {
-		debug::bBufferLog = true;
 		CPUAccDeltaTime += deltatime;
 		while (CPUAccDeltaTime >= CPUCycleLength) {
 
@@ -37,11 +36,10 @@ namespace mos6502emu{
 			CPUAccDeltaTime -= (cycles);
 
 		}
-		debug::SendLog();
+		DebugLog.SendLog();
 	}
 
 	CyclesUsed TickCPU() {
-		debug::bBufferLog = false;
 		return CPU::Tick();
 	}
 
@@ -69,8 +67,8 @@ namespace mos6502emu{
 
 	void PPUCallbackDummy() {};
 
-	void SetDebugCallback(void(*callback)(const char* message, int count)) {
-		debug::SetDebugCallback(callback);
+	void SetDebugCallback(void(*callback)(const DebugInfo&)) {
+		DebugLog.SetDebugCallback(callback);
 	}
 
 	
@@ -91,6 +89,16 @@ namespace mos6502emu{
 		MemoryCell::OnWriteCallback = OnWriteCallback;
 	}
 
+
+	Word8bit MemoryCell::Read() {
+		DebugLog.Log(DebugInfo::ECommand::READ, *this);
+		return OnReadCallback(this);
+	}
+
+	void MemoryCell::Write(Word8bit value) {
+		DebugLog.Log(DebugInfo::ECommand::WRITE, *this);
+		OnWriteCallback(this, value);
+	}
 
 }
 

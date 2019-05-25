@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <utility>
+#include <string>
 
 
 /*
@@ -19,7 +20,7 @@ namespace mos6502emu {
 
 	//constexpr std :: size_t memorySize = 0xFFFFu + 1u;
 	//extern std :: array<MemoryCell, meomorySize> Memory;
-	extern MemoryCell Memory[0xFFFF + 1];
+	extern class MemoryBlock Memory;
 	extern union StatusRegisters Status;
 	extern struct ProcessorRegisters Reg;
 
@@ -46,14 +47,14 @@ namespace mos6502emu {
 	void SetPC(Word16bit newPC);
 
 	// Debug
-	void SetDebugCallback(void(*callback)(const char* message, int count));
+	void SetDebugCallback(void(*callback)(const struct DebugInfo&));
 
-
+	extern class Debug DebugLog;
 
 	// Memory Cell Class
 	class MemoryCell {
 	public:
-		MemoryCell() = default;
+		inline MemoryCell() = default;
 		MemoryCell(int value_8bit) : data((Word8bit)value_8bit) {}
 
 		MemoryCell(const MemoryCell& right) : data(right.data) {}
@@ -143,13 +144,8 @@ namespace mos6502emu {
 		void SetCallback(void(*OnWriteCallback)(MemoryCell* memory_cell, Word8bit value));
 
 	public:
-		__forceinline Word8bit Read() {
-			return OnReadCallback(this);
-		}
-
-		__forceinline void Write(Word8bit value) {
-			OnWriteCallback(this, value);
-		}
+		Word8bit Read();
+		void Write(Word8bit value);
 
 	public:
 		Word8bit data;
@@ -190,8 +186,20 @@ namespace mos6502emu {
 
 	extern ProcessorRegisters Reg;
 
+	struct DebugInfo {
+		enum class ECommand {
+			NONE,
+			READ,
+			WRITE
+		};
 
-
+		ProcessorRegisters Reg;
+		StatusRegisters Status;
+		std::string OpCodeName;
+		ECommand Command;
+		Word8bit CellValue;
+		Word16bit CellIndex;
+	};
 }
 
 
