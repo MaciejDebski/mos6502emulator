@@ -71,6 +71,10 @@ namespace mos6502emu{
 		DebugLog.SetDebugCallback(callback);
 	}
 
+	bool SetDebugHistoryCapacity(float kilobytes) {
+		return DebugLog.SetDebugCapacity(kilobytes);
+	}
+
 	
 	// Memory Cell
 	void MemoryCell::SetCallback(Word8bit(*OnReadCallback)(MemoryCell* memory_cell)) {
@@ -99,6 +103,11 @@ namespace mos6502emu{
 		DebugLog.Log(DebugInfo::ECommand::WRITE, *this);
 		OnWriteCallback(this, value);
 	}
+
+	MemoryCell& MemoryBlock::operator[](const int index) {
+		DebugLog.Log(DebugInfo::ECommand::NONE, index);
+		return Block[index];
+	};
 
 }
 

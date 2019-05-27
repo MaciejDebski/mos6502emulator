@@ -8,6 +8,20 @@
 namespace mos6502emu {
 	class Debug {
 	public:
+		inline Debug() {
+			LogBuffer = std::make_unique<RingBuffer<DebugInfo>>(1024);
+		};
+
+		inline bool SetDebugCapacity(float kilobytes) {
+			try {
+				LogBuffer->resize(static_cast<unsigned int>(kilobytes * 1024 / sizeof(DebugInfo)));
+			}
+			catch (...) {
+				return false;
+			}
+			return true;
+		};
+
 		void SetDebugCallback(void(*callback)(const DebugInfo& info));
 
 		inline void Log(const ProcessorRegisters& new_reg) {

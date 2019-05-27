@@ -48,6 +48,7 @@ namespace mos6502emu {
 
 	// Debug
 	void SetDebugCallback(void(*callback)(const struct DebugInfo&));
+	bool SetDebugHistoryCapacity(float kilobytes);
 
 	extern class Debug DebugLog;
 
@@ -156,7 +157,6 @@ namespace mos6502emu {
 		void(*OnWriteCallback)(MemoryCell* memory_cell, Word8bit value) = &MemoryOnWrite_Default;
 	};
 
-
 	union StatusRegisters {
 		struct {
 			volatile Word8bit C : 1;
@@ -199,6 +199,16 @@ namespace mos6502emu {
 		ECommand Command;
 		Word8bit CellValue;
 		Word16bit CellIndex;
+
+		inline DebugInfo() : Command(ECommand::NONE), CellValue(0), CellIndex(0) {};
+	};
+
+	class MemoryBlock {
+	public:
+		MemoryCell& operator[](const int index);
+
+	private:
+		MemoryCell Block[0xFFFF + 1];
 	};
 }
 

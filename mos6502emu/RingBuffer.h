@@ -7,10 +7,14 @@ namespace mos6502emu {
 	public:
 		using buffer_type = std::vector<DataType>;
 
-		inline RingBuffer(int size) : Buffer(size, DataType()) {};
+		inline RingBuffer(unsigned int size) : Buffer(size, DataType()) {};
 
 		inline typename buffer_type::const_iterator GetCurrent() {
 			return Current;
+		};
+
+		inline void resize(unsigned int size) {
+			Buffer.resize(size, DataType());
 		};
 
 		inline typename buffer_type::const_iterator begin() {
