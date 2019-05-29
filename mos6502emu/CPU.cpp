@@ -168,6 +168,7 @@ namespace mos6502emu {
 			Stack_Push(p.all_flags);
 			Reg.PC = LinkBytes(Memory[VectorLow], Memory[VectorHigh]);
 			Status.I = 1;
+			DebugLog.UpdateRegAndStatus();
 		}
 
 		CyclesUsed InterruptCheck() {
@@ -184,22 +185,30 @@ namespace mos6502emu {
 
 		CyclesUsed BRK() {
 			Interrupt(0xFFFE, 0xFFFF, 1);
+			DebugLog.Log("BRK");
+			DebugLog.SendLog();
 			return 7;
 		}
 
 		CyclesUsed IRQ() {
 			Interrupt(0xFFFE, 0xFFFF, 0);
+			DebugLog.Log("IRQ");
+			DebugLog.SendLog();
 			return 7;
 		}
 
 		CyclesUsed NMI() {
 			Interrupt(0xFFFA, 0xFFFB, 0);
+			DebugLog.Log("NMI");
+			DebugLog.SendLog();
 			return 7;
 		}
 
 		CyclesUsed RESET() {
 			Reg.PC = LinkBytes(Memory[0xFFFC], Memory[0xFFFD]);
 			Status.I = 1;
+			DebugLog.Log("RESET");
+			DebugLog.SendLog();
 			return 7;
 		}
 

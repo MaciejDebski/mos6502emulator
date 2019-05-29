@@ -36,7 +36,6 @@ namespace mos6502emu{
 			CPUAccDeltaTime -= (cycles);
 
 		}
-		DebugLog.SendLog();
 	}
 
 	CyclesUsed TickCPU() {

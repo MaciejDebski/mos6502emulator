@@ -7,7 +7,7 @@ namespace mos6502emu {
 	public:
 		using buffer_type = std::vector<DataType>;
 
-		inline RingBuffer(unsigned int size) : Buffer(size, DataType()) {};
+		inline RingBuffer(unsigned int size) : Buffer(size, DataType()), Current(Buffer.begin() - 1) {};
 
 		inline typename buffer_type::const_iterator GetCurrent() {
 			return Current;

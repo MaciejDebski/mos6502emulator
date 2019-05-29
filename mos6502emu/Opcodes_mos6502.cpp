@@ -1171,8 +1171,8 @@ namespace mos6502emu {
 		}break;
 		}
 
-		DebugLog.Log(Status.all_flags);
-		DebugLog.Log(Reg);
+		DebugLog.UpdateRegAndStatus();
+		DebugLog.SendLog();
 	}
 
 }

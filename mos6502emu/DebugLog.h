@@ -8,7 +8,7 @@
 namespace mos6502emu {
 	class Debug {
 	public:
-		inline Debug() {
+		inline Debug() : LogCallback(LogCallbackDummy) {
 			LogBuffer = std::make_unique<RingBuffer<DebugInfo>>(1024);
 		};
 
@@ -23,6 +23,11 @@ namespace mos6502emu {
 		};
 
 		void SetDebugCallback(void(*callback)(const DebugInfo& info));
+
+		inline void UpdateRegAndStatus() {
+			DebugLog.Log(Status.all_flags);
+			DebugLog.Log(Reg);
+		};
 
 		inline void Log(const ProcessorRegisters& new_reg) {
 			TempLog.Reg = new_reg;
@@ -53,7 +58,7 @@ namespace mos6502emu {
 		std::unique_ptr<RingBuffer<DebugInfo>> LogBuffer;
 
 		static void LogCallbackDummy(const DebugInfo& info) {};
-		void(*LogCallback)(const DebugInfo& info) = LogCallbackDummy;
+		void(*LogCallback)(const DebugInfo& info);
 	};
 
 }
